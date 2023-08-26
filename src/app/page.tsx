@@ -2,13 +2,18 @@
 import { useEffect, useState } from "react";
 import createConnection from "@/services/signalRClient";
 import { HubConnection } from "@microsoft/signalr";
-import Tabuleiro from "./components/tabuleiro";
+import Tabuleiro from "./components/board";
+import Piece, {PieceProps} from '@/app/components/piece';
+import ColorEnum from "@/app/enums/colorEnum";
 
 export default function Home() {
   const [messages, setMessages] = useState<string[]>([]);
   const [connection, setConnection] = useState<HubConnection | null>();
+
+  const [pieces, setPieces] = useState<PieceProps>();
+
   useEffect(() => {
-    const newConnection = createConnection("http://localhost:5152/play");
+    const newConnection = createConnection(`${process.env.NEXT_PUBLIC_API_URL!}/game`);
     newConnection
       .start()
       .then(() => {
@@ -56,7 +61,10 @@ export default function Home() {
       {messages.map((message) => (
         <div key={message}>{message}</div>
       ))}
-      <Tabuleiro />
+      <Tabuleiro>
+        <Piece id="a" color={ColorEnum.Black} cx={100} cy={100} />
+        <Piece id="b" color={ColorEnum.White} cx={150} cy={100} />
+      </Tabuleiro>
     </main>
   );
 }
