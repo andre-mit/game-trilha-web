@@ -2,18 +2,29 @@
 import { useEffect, useState } from "react";
 import createConnection from "@/services/signalRClient";
 import { HubConnection } from "@microsoft/signalr";
-import Tabuleiro from "./components/board";
-import Piece, {PieceProps} from '@/app/components/piece';
+import Board, { BoardPositions } from "./components/board";
+import Piece, { PieceProps } from "@/app/components/piece";
 import ColorEnum from "@/app/enums/colorEnum";
 
 export default function Home() {
   const [messages, setMessages] = useState<string[]>([]);
   const [connection, setConnection] = useState<HubConnection | null>();
 
-  const [pieces, setPieces] = useState<PieceProps>();
+  const [pieces, setPieces] = useState<PieceProps[]>([]);
+  const [opponentPieces, setOpponentPieces] = useState<PieceProps[]>([]);
+
+  const [cx, setCx] = useState<number>(100);
+  const [cy, setCy] = useState<number>(100);
+
+  const update = () => {
+    const num = cx === 100 ? 200 : 100;
+    setCx(num);
+  }
 
   useEffect(() => {
-    const newConnection = createConnection(`${process.env.NEXT_PUBLIC_API_URL!}/game`);
+    const newConnection = createConnection(
+      `${process.env.NEXT_PUBLIC_API_URL!}/game`
+    );
     newConnection
       .start()
       .then(() => {
@@ -22,6 +33,9 @@ export default function Home() {
         newConnection.on("ReceiveMessage", (message) => {
           setMessages((messages) => [...messages, message]);
         });
+
+        newConnection.on("Start", onStartGame);
+
         setConnection(newConnection);
 
         return () => {
@@ -35,11 +49,19 @@ export default function Home() {
   }, []);
 
   const joinRoom = () => {
-    connection!.invoke("JoinRoom", "test");
+    connection!.invoke("Join", "test");
   };
 
   const leaveRoom = () => {
-    connection!.invoke("LeaveRoom", "test");
+    connection!.invoke("Leave", "test");
+  };
+
+  const onStartGame = (data: any) => {
+    console.log(data);
+  };
+
+  const invokeStart = () => {
+    connection!.invoke("Start", "test");
   };
 
   return (
@@ -58,13 +80,26 @@ export default function Home() {
         Leave Room
       </button>
 
+      <button
+        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        onClick={invokeStart}
+      >
+        Start
+      </button>
+
+      <button
+        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        onClick={update}
+      >
+        Update
+      </button>
+
       {messages.map((message) => (
         <div key={message}>{message}</div>
       ))}
-      <Tabuleiro>
-        <Piece id="a" color={ColorEnum.Black} cx={100} cy={100} />
-        <Piece id="b" color={ColorEnum.White} cx={150} cy={100} />
-      </Tabuleiro>
+      <Board>
+        <Piece id="a" color={ColorEnum.Black} x={cx} y={cy} />
+      </Board>
     </main>
   );
 }
