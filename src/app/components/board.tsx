@@ -51,8 +51,7 @@ export default function Board({ children }: { children?: React.ReactNode }) {
                 r="10"
               />
             );
-          })
-          }
+          })}
         </g>
 
         <g name="t2">
@@ -80,13 +79,13 @@ export default function Board({ children }: { children?: React.ReactNode }) {
 }
 
 type Track = {
-  id: number;
+  id: 0 | 1 | 2;
   positions: TrackPositions[];
 };
 
 type TrackPositions = {
-  line: number;
-  column: number;
+  line: 0 | 1 | 2;
+  column: 0 | 1 | 2;
   position: Position;
 };
 
@@ -133,12 +132,12 @@ export const BoardPositions: Track[] = [
       { line: 0, column: 1, position: { x: 150, y: 100 } },
       { line: 0, column: 2, position: { x: 200, y: 100 } },
 
-      { line: 1, column: 0, position: { x: 100, y: 200 } },
-      { line: 1, column: 2, position: { x: 200, y: 200 } },
+      { line: 1, column: 0, position: { x: 100, y: 150 } },
+      { line: 1, column: 2, position: { x: 200, y: 150 } },
 
-      { line: 2, column: 0, position: { x: 100, y: 300 } },
-      { line: 2, column: 1, position: { x: 150, y: 300 } },
-      { line: 2, column: 2, position: { x: 200, y: 300 } },
+      { line: 2, column: 0, position: { x: 100, y: 200 } },
+      { line: 2, column: 1, position: { x: 150, y: 200 } },
+      { line: 2, column: 2, position: { x: 200, y: 200 } },
     ],
   },
 ];
