@@ -121,7 +121,14 @@ const track2 = {
 
 export const placesToVerify = [track0, track1, track2];
 
-export const getPlaces = (track: number, line: 0 | 1 | 2, column: 0 | 1 | 2) => {
-  const places = placesToVerify[track][`${line}${column}` as keyof typeof placesToVerify[0]];
+export const getPlaces = (
+  track: number,
+  line: 0 | 1 | 2,
+  column: 0 | 1 | 2
+) => {
+  const places =
+    placesToVerify[track][
+      `${line}${column}` as keyof (typeof placesToVerify)[0]
+    ];
   return places;
 };
