@@ -1,5 +1,6 @@
 import { GiTakeMyMoney, GiCrown, GiQueenCrown } from "react-icons/gi";
 import Button, { ButtonLink } from "@/app/components/button";
+
 export default function Home() {
   const male = true;
   return (
