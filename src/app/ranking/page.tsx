@@ -1,5 +1,5 @@
-import { GiReturnArrow, GiCrown, GiQueenCrown } from "react-icons/gi";
-import Button, { ButtonLink } from "@/app/components/button";
+import { GiCrown } from "react-icons/gi";
+import BackButton from "../components/backButton";
 
 export default function Home() {
   const male = true;
@@ -10,6 +10,7 @@ export default function Home() {
     { lugar: 4, players: "Player 3", score: 80 },
     { lugar: 5, players: "Player 3", score: 80 },
   ];
+
 
   return (
     <div className="wrapper flex flex-col justify-between h-screen">
@@ -48,13 +49,7 @@ export default function Home() {
         </table>
       </main>
       <footer className="self-end ml-auto p-4 text-white">
-        <button className="return flex-no-shrink fill-current">
-          <div className="flex flex-col items-center justify-center gap-1">
-            <span className="ml-2 bg-white dark:bg-white rounded-md px-3 py-1 min-w flex items-center">
-              <GiReturnArrow className="w-24 h-24 fill-black" />
-            </span>
-          </div>
-        </button>
+        <BackButton />
       </footer>
     </div>
   );

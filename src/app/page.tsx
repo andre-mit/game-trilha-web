@@ -5,6 +5,7 @@ import {
   GiExitDoor,
 } from "react-icons/gi";
 import Button, { ButtonLink } from "@/app/components/button";
+import Link from "next/link";
 
 export default function Home() {
   const male = true;
@@ -20,13 +21,13 @@ export default function Home() {
           </button>
         </div>
         <div className="rank">
-          <button>
+          <Link href="ranking">
             {male ? (
               <GiCrown className="w-24 h-24 fill-yellow-300 hover:fill-yellow-500 transition-colors" />
             ) : (
               <GiQueenCrown className="w-20 h-20 fill-yellow-300 hover:fill-yellow-500 transition-colors" />
             )}
-          </button>
+          </Link>
         </div>
       </header>
       <main className="flex flex-wrap gap-6 max-w-[500px] place-self-center items-center justify-center">
