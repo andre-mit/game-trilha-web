@@ -1,4 +1,5 @@
-import { GiReturnArrow, GiCrown } from "react-icons/gi";
+import { GiReturnArrow, GiCrown, GiQueenCrown } from "react-icons/gi";
+import Button, { ButtonLink } from "@/app/components/button";
 
 export default function Home() {
   const male = true;
@@ -12,8 +13,7 @@ export default function Home() {
 
   return (
     <div className="wrapper flex flex-col justify-between h-screen">
-      <header className="fl
-      ex justify-center pt-4 pl-4 pr-4">
+      <header className="flex justify-center pt-4 pl-4 pr-4">
         <div className="crown flex-no-shrink fill-current">
           <div className="flex flex-col items-center justify-center gap-1">
             <span className=" text-black drop-shadow-xl shadow-white dark:drop-shadow-md dark:shadow-white font-semibold text-4xl bg-yellow-500 dark:bg-yellow-400 rounded-md px-3 py-2 min-w-full flex items-center">
