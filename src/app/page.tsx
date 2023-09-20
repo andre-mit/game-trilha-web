@@ -1,4 +1,9 @@
-import { GiTakeMyMoney, GiCrown, GiQueenCrown } from "react-icons/gi";
+import {
+  GiTakeMyMoney,
+  GiCrown,
+  GiQueenCrown,
+  GiExitDoor,
+} from "react-icons/gi";
 import Button, { ButtonLink } from "@/app/components/button";
 
 export default function Home() {
@@ -17,20 +22,31 @@ export default function Home() {
         <div className="rank">
           <button>
             {male ? (
-              <GiCrown className="w-24 h-24 fill-yellow-300" />
+              <GiCrown className="w-24 h-24 fill-yellow-300 hover:fill-yellow-500 transition-colors" />
             ) : (
-              <GiQueenCrown className="w-20 h-20 fill-yellow-300" />
+              <GiQueenCrown className="w-20 h-20 fill-yellow-300 hover:fill-yellow-500 transition-colors" />
             )}
           </button>
         </div>
       </header>
       <main className="flex flex-wrap gap-6 max-w-[500px] place-self-center items-center justify-center">
-        <ButtonLink href="/game">Jogar</ButtonLink>
-        <Button className="">Loja</Button>
-        <Button>Inventário</Button>
+        <ButtonLink size="md" href="/game">
+          Jogar
+        </ButtonLink>
+        <Button size="md">
+          Loja
+        </Button>
+        <Button size="md">Inventário</Button>
       </main>
-      <footer className="self-center p-4 text-white">
-        <span>Jogo da Trilha</span>
+      <footer className="self-center flex items-center p-4 text-white">
+        <Button
+          size="default"
+          className="gap-3 text-2xl bg-red-600 hover:bg-red-800"
+          title="sair"
+        >
+          <span>Sair</span>
+          <GiExitDoor className="w-8 h-8 fill-white" />
+        </Button>
       </footer>
     </div>
   );
