@@ -9,7 +9,9 @@ import { getPlaces } from "@/app/helpers/placesVerification";
 
 export default function Game() {
   const color = ColorEnum.Black;
-  const [connection, setConnection] = useState<HubConnection | null>();
+  const [connection, setConnection] = useState<HubConnection>(
+    createConnection(`${process.env.NEXT_PUBLIC_API_URL!}/game`)
+  );
   const [turn, setTurn] = useState(false);
   const [to, setTo] = useState<string>("");
   const [freePlaces, setFreePlaces] = useState<PlaceProps[]>([]);
@@ -52,17 +54,18 @@ export default function Game() {
 
   // SignalR
   useEffect(() => {
-    const newConnection = createConnection(
-      `${process.env.NEXT_PUBLIC_API_URL!}/game`
-    );
-    newConnection
+    connection
       .start()
       .then(() => {
-        setConnection(newConnection);
-
+        connection.on("Move", (from: number[], to: number[]) => {
+          console.log("mov-ae", from, to);
+          move(
+            { track: from[0], line: from[1], column: from[2] } as PlaceProps,
+            { track: to[0], line: to[1], column: to[2] } as PlaceProps
+          );
+        });
         return () => {
-          newConnection.stop();
-          connection?.stop();
+          connection.stop();
         };
       })
       .catch((err) => {
@@ -104,8 +107,9 @@ export default function Game() {
     );
   };
 
-  const handleMove = (to: PlaceProps) => {
-    const { column, line, track } = selectedPiece!;
+  const move = (from: PlaceProps, to: PlaceProps) => {
+    const { column, line, track } = from;
+    console.log("move", from, to);
     const piece = pieces.find(
       (p) =>
         p.place.track === track &&
@@ -113,8 +117,11 @@ export default function Game() {
         p.place.column === column
     );
 
+    console.log(piece);
+    console.log('pieces', pieces)
+
     if (piece) {
-      setSelectedPiece(null);
+      // if (selectedPiece) setSelectedPiece(null);
       setPieces(
         (pieces) =>
           [
@@ -131,6 +138,16 @@ export default function Game() {
           ] as PieceProps[]
       );
     }
+  };
+
+  const handleMove = (to: PlaceProps) => {
+    const { column, line, track } = selectedPiece!;
+    const fromData = [track, line, column];
+    const toData = [to.track, to.line, to.column];
+
+    console.log(fromData, toData);
+
+    connection.invoke("Move", fromData, toData);
   };
 
   const update = () => {
