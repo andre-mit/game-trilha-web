@@ -58,8 +58,6 @@ export default function Game() {
     newConnection
       .start()
       .then(() => {
-        console.log("connected");
-
         setConnection(newConnection);
 
         return () => {
@@ -68,9 +66,9 @@ export default function Game() {
         };
       })
       .catch((err) => {
-        console.log(err);
+        console.error("Socket error", err);
       });
-  }, [connection]);
+  }, []);
 
   useEffect(() => {
     if (selectedPiece !== null) {
@@ -92,7 +90,7 @@ export default function Game() {
             column: place.column as 0 | 1 | 2,
           });
       });
-      console.log("freeP", freeP);
+
       setFreePlaces(freeP);
     } else setFreePlaces([]);
   }, [selectedPiece, pieces]);
@@ -114,6 +112,7 @@ export default function Game() {
         p.place.line === line &&
         p.place.column === column
     );
+
     if (piece) {
       setSelectedPiece(null);
       setPieces(
@@ -121,8 +120,8 @@ export default function Game() {
           [
             ...pieces.filter(
               (p) =>
-                p.place.track !== track &&
-                p.place.line !== line &&
+                p.place.track !== track ||
+                p.place.line !== line ||
                 p.place.column !== column
             ),
             {

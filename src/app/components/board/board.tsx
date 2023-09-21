@@ -52,9 +52,9 @@ export default function Board({
 
           {BoardPositions[0].positions.map((position) => {
             return (
-              <>
+              <g key={position.line + "-" + position.column}>
                 <circle
-                  key={position.line + "-" + position.column}
+                 
                   cx={position.position.x}
                   cy={position.position.y}
                   r="10"
@@ -86,7 +86,7 @@ export default function Board({
                     }}
                   />
                 )}
-              </>
+              </g>
             );
           })}
         </g>
@@ -100,9 +100,9 @@ export default function Board({
 
           {BoardPositions[1].positions.map((position) => {
             return (
-              <>
+              <g key={position.line + "-" + position.column}>
                 <circle
-                  key={position.line + "-" + position.column}
+                 
                   cx={position.position.x}
                   cy={position.position.y}
                   r="10"
@@ -134,7 +134,7 @@ export default function Board({
                     }}
                   />
                 )}
-              </>
+              </g>
             );
           })}
         </g>
@@ -148,9 +148,9 @@ export default function Board({
 
           {BoardPositions[2].positions.map((position) => {
             return (
-              <>
+              <g key={position.line + "-" + position.column}>
                 <circle
-                  key={position.line + "-" + position.column}
+                 
                   cx={position.position.x}
                   cy={position.position.y}
                   r="10"
@@ -182,7 +182,7 @@ export default function Board({
                     }}
                   />
                 )}
-              </>
+              </g>
             );
           })}
         </g>
