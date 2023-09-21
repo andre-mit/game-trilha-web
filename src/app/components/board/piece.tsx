@@ -1,8 +1,8 @@
 import ColorEnum from "@/app/enums/colorEnum";
 import { motion } from "framer-motion";
-import { BoardPositions } from "@/app/components/board";
+import { BoardPositions } from "@/app/components/board/boardPositions";
 
-export type Place = {
+export type PlaceProps = {
   track: 0 | 1 | 2;
   line: 0 | 1 | 2;
   column: 0 | 1 | 2;
@@ -13,10 +13,9 @@ export type PieceProps = {
   color: ColorEnum;
   skin?: string;
 
-  place: Place;
-  onSelect: (place: Place) => void;
+  place: PlaceProps;
+  onSelect: (place: PlaceProps) => void;
 };
-
 
 export default function Piece({
   id,
@@ -37,16 +36,18 @@ export default function Piece({
   const y = position?.y;
 
   return (
+    <>
       <motion.circle
         id={id}
         animate={{ cx: x, cy: y }}
         cx={x}
         cy={y}
-        r="14"
+        r="11"
         fill={colorClass}
         strokeWidth={2}
         stroke={colorClass}
         onClick={handleClick}
       />
+    </>
   );
 }

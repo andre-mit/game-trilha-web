@@ -1,14 +1,8 @@
-import {
-  GiTakeMyMoney,
-  GiCrown,
-  GiQueenCrown,
-  GiExitDoor,
-} from "react-icons/gi";
+import { GiTakeMyMoney, GiCrown, GiExitDoor } from "react-icons/gi";
 import Button, { ButtonLink } from "@/app/components/button";
 import Link from "next/link";
 
 export default function Home() {
-  const male = true;
   return (
     <div className="wrapper flex flex-col justify-between h-screen">
       <header className="flex justify-between pt-4 pl-4 pr-4">
@@ -22,11 +16,7 @@ export default function Home() {
         </div>
         <div className="rank">
           <Link href="ranking">
-            {male ? (
-              <GiCrown className="w-24 h-24 fill-yellow-300 hover:fill-yellow-500 transition-colors" />
-            ) : (
-              <GiQueenCrown className="w-20 h-20 fill-yellow-300 hover:fill-yellow-500 transition-colors" />
-            )}
+            <GiCrown className="w-24 h-24 fill-yellow-300 hover:fill-yellow-500 transition-colors" />
           </Link>
         </div>
       </header>
@@ -34,9 +24,7 @@ export default function Home() {
         <ButtonLink size="md" href="/game">
           Jogar
         </ButtonLink>
-        <Button size="md">
-          Loja
-        </Button>
+        <Button size="md">Loja</Button>
         <Button size="md">Inventário</Button>
       </main>
       <footer className="self-center flex items-center p-4 text-white">
