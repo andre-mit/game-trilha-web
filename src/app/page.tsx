@@ -1,7 +1,17 @@
+"use client"
 import { GiTakeMyMoney, GiCrown, GiQueenCrown } from "react-icons/gi";
 import Button, { ButtonLink } from "@/app/components/button";
+import {useContext, useEffect} from 'react'
+import { parseCookies } from 'nookies'
+import { AuthContext } from '../contexts/AuthContext'
+import { api } from '../services/api'
+import { GetServerSideProps } from 'next'
+import { getAPIClient } from '../services/axios'
+import { isMinusToken } from "typescript";
 
 export default function Home() {
+  const { user } = useContext(AuthContext)
+
   const male = true;
   return (
     <div className="wrapper flex flex-col justify-between h-screen">
@@ -33,5 +43,28 @@ export default function Home() {
         <span>Jogo da Trilha</span>
       </footer>
     </div>
-  );
+  )
 }
+//(para poder utilizar itens do usuario) 
+//exemplo src={user?.username} "para receber o nome"
+
+export const getServerSideProps: GetServerSideProps = async (ctx) => {
+  const apiClient = getAPIClient(ctx);
+  const { ['nextauth.token']: token } = parseCookies(ctx)
+
+  if (!token) {
+    return {
+      redirect: {
+        destination: '/',
+        permanent: false,
+      }
+    }
+  }
+
+  await apiClient.get('/users')
+
+  return {
+    props: {}
+  }
+}
+
