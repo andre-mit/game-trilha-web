@@ -5,13 +5,15 @@ export default function middleware(request: NextRequest) {
 
   const signInURL = new URL("/login", request.url);
 
-  if (!token)
+  console.log(request.nextUrl.pathname);
+  if (!token) {
     if (request.nextUrl.pathname === "/login") {
       return NextResponse.next();
     }
-  return NextResponse.redirect(signInURL);
+    return NextResponse.redirect(signInURL);
+  }
 }
 
 export const config = {
-  matcher: "/:path*",
+  matcher: ["/((?!_next|api/auth).*)(.+)", "/login"],
 };

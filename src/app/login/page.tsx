@@ -9,7 +9,7 @@ export default function Home() {
     function handleLogin(){
         Cookie.set("auth_token", "aisodnaoisndauisndbiausbnda")
         router.push("/")
-
+        console.log(Cookie.get('auth_token'))
     }
 
   return (
