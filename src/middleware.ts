@@ -15,5 +15,5 @@ export default function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next|api/auth).*)(.+)", "/login"],
+  matcher: ["/((?!_next|api/auth).*)(.+)", "/login", "/"],
 };
