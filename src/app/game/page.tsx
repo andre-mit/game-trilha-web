@@ -13,7 +13,6 @@ export default function Game() {
     createConnection(`${process.env.NEXT_PUBLIC_API_URL!}/game`)
   );
   const [turn, setTurn] = useState(false);
-  const [to, setTo] = useState<string>("");
   const [freePlaces, setFreePlaces] = useState<PlaceProps[]>([]);
   const [selectedPiece, setSelectedPiece] = useState<PlaceProps | null>(null);
 
@@ -58,7 +57,6 @@ export default function Game() {
       .start()
       .then(() => {
         connection.on("Move", (from: number[], to: number[]) => {
-          console.log("mov-ae", from, to);
           move(
             { track: from[0], line: from[1], column: from[2] } as PlaceProps,
             { track: to[0], line: to[1], column: to[2] } as PlaceProps
@@ -108,36 +106,23 @@ export default function Game() {
   };
 
   const move = (from: PlaceProps, to: PlaceProps) => {
-    const { column, line, track } = from;
-    console.log("move", from, to);
-    const piece = pieces.find(
+    var newPieces = [...pieces];
+
+    var index = newPieces.findIndex(
       (p) =>
-        p.place.track === track &&
-        p.place.line === line &&
-        p.place.column === column
+        p.place.track === from.track &&
+        p.place.line === from.line &&
+        p.place.column === from.column
     );
 
-    console.log(piece);
-    console.log('pieces', pieces)
+    newPieces[index].place = {
+      track: to.track,
+      line: to.line,
+      column: to.column,
+    };
 
-    if (piece) {
-      // if (selectedPiece) setSelectedPiece(null);
-      setPieces(
-        (pieces) =>
-          [
-            ...pieces.filter(
-              (p) =>
-                p.place.track !== track ||
-                p.place.line !== line ||
-                p.place.column !== column
-            ),
-            {
-              ...piece,
-              place: { track: to.track, line: to.line, column: to.column },
-            },
-          ] as PieceProps[]
-      );
-    }
+    setSelectedPiece(null);
+    setPieces(newPieces);
   };
 
   const handleMove = (to: PlaceProps) => {
@@ -145,42 +130,11 @@ export default function Game() {
     const fromData = [track, line, column];
     const toData = [to.track, to.line, to.column];
 
-    console.log(fromData, toData);
-
     connection.invoke("Move", fromData, toData);
-  };
-
-  const update = () => {
-    const [track, line, column] = to.split("-").map((p) => parseInt(p));
-    const piece = pieces.find((p) => p.id === "1234")!;
-
-    setPieces(
-      (pieces) =>
-        [
-          ...pieces.filter((p) => p.id !== "1234"),
-          {
-            ...piece,
-            place: { track, line, column },
-          },
-        ] as PieceProps[]
-    );
   };
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <button
-        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-        onClick={update}
-      >
-        Update
-      </button>
-
-      <input
-        className="bg-slate-800"
-        type="text"
-        value={to}
-        onChange={(e) => setTo(e.target.value)}
-      />
       <Board freePlaces={freePlaces} handleMove={handleMove}>
         {pieces.map((piece) => {
           return (
