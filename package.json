@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "stop": "next stop",
     "lint": "next lint"
   },
   "dependencies": {
@@ -14,10 +15,14 @@
     "@types/react": "18.2.20",
     "@types/react-dom": "18.2.7",
     "autoprefixer": "10.4.15",
+    "dotenv": "^16.3.1",
+    "ejs": "^3.1.9",
     "eslint": "8.47.0",
     "eslint-config-next": "13.4.19",
+    "express": "^4.18.2",
     "framer-motion": "^10.16.1",
     "next": "13.4.19",
+    "node-fetch": "^3.3.2",
     "postcss": "8.4.28",
     "react": "18.2.0",
     "react-dom": "18.2.0",
