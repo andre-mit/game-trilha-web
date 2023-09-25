@@ -1,20 +1,18 @@
-"use client"
+"use client";
 import { GiTakeMyMoney, GiCrown, GiExitDoor } from "react-icons/gi";
 import Button, { ButtonLink } from "@/app/components/button";
 import Link from "next/link";
-import Cookie from 'js-cookie'
-import{useRouter} from 'next/navigation'
-
+import Cookie from "js-cookie";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
-  const router = useRouter()
+  const router = useRouter();
 
-  function handleLogout(){
-    Cookie.remove('auth_token')
-    router.push("/login")
-
+  function handleLogout() {
+    Cookie.remove("auth_token");
+    router.push("/login");
   }
-  const male = true;
+
   return (
     <div className="wrapper flex flex-col justify-between h-screen">
       <header className="flex justify-between pt-4 pl-4 pr-4">
@@ -40,7 +38,8 @@ export default function Home() {
         <Button size="md">Inventário</Button>
       </main>
       <footer className="self-center flex items-center p-4 text-white">
-        <Button onClick={handleLogout}
+        <Button
+          onClick={handleLogout}
           size="default"
           className="gap-3 text-2xl bg-red-600 hover:bg-red-800"
           title="sair"
