@@ -1,13 +1,13 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
-import Board from "../components/board/board";
+import Board from "../../components/board/board";
 import Piece, { PieceProps, PlaceProps } from "@/app/components/board/piece";
 import ColorEnum from "@/app/enums/colorEnum";
 import { getPlaces } from "@/app/helpers/placesVerification";
 import { useSignalR } from "@/context/signalR/signalRContext";
 import Audio from "@/app/components/audio";
 
-export default function Game() {
+export default function Game({params}: {params: {id: string}}) {
   const color = ColorEnum.Black;
   const signalR = useSignalR();
   const [turn, setTurn] = useState(ColorEnum.White);
@@ -122,7 +122,7 @@ export default function Game() {
     const fromData = [track, line, column];
     const toData = [to.track, to.line, to.column];
 
-    signalR.invoke("Move", "1", fromData, toData);
+    signalR.invoke("Move", params.id, fromData, toData);
   };
 
   const startTimer = () => {
