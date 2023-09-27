@@ -2,8 +2,8 @@
 import { useEffect, useState, useRef } from "react";
 import Board from "../../components/board/board";
 import Piece, { PieceProps, PlaceProps } from "@/app/components/board/piece";
-import ColorEnum from "@/app/enums/colorEnum";
-import { getPlaces } from "@/app/helpers/placesVerification";
+import ColorEnum from "@/enums/colorEnum";
+import { getPlaces } from "@/helpers/placesVerification";
 import { useSignalR } from "@/context/signalR/signalRContext";
 import Audio from "@/app/components/audio";
 

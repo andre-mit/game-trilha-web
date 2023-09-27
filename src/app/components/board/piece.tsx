@@ -1,4 +1,4 @@
-import ColorEnum from "@/app/enums/colorEnum";
+import ColorEnum from "@/enums/colorEnum";
 import { motion } from "framer-motion";
 import { BoardPositions } from "@/app/components/board/boardPositions";
 
