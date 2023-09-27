@@ -10,7 +10,7 @@ import {
   useContext,
 } from "react";
 
-export const SignalRContext = createContext<HubConnection>({} as HubConnection);
+export const SignalRContext = createContext<HubConnection | null>(null);
 
 export const SignalRProvider = ({
   children,

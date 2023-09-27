@@ -9,7 +9,7 @@ import Audio from "@/app/components/audio";
 
 export default function Game({params}: {params: {id: string}}) {
   const color = ColorEnum.Black;
-  const signalR = useSignalR();
+  const signalR = useSignalR()!;
   const [turn, setTurn] = useState(ColorEnum.White);
   const [freePlaces, setFreePlaces] = useState<PlaceProps[]>([]);
   const [selectedPiece, setSelectedPiece] = useState<PlaceProps | null>(null);

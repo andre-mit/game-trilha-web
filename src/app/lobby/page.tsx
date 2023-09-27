@@ -1,53 +1,22 @@
 "use client";
-import { useEffect, useState } from "react";
-import { useRouter } from 'next/navigation'
+import { use, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useSignalR } from "@/context/signalR/signalRContext";
-import Room from "./components/room";
+import Room from "./components/Room/";
 
-const roomsBase = [
-  {
-    name: "1",
-    players: 0,
-    status: "Waiting",
-    joined: false,
-  },
-  {
-    name: "2",
-    players: 1,
-    status: "Waiting",
-    joined: false,
-  },
-  {
-    name: "3",
-    players: 2,
-    status: "Playing",
-    joined: false,
-  },
-  {
-    name: "4",
-    players: 0,
-    status: "Waiting",
-    joined: false,
-  },
-  {
-    name: "5",
-    players: 1,
-    status: "Waiting",
-    joined: false,
-  },
-  {
-    name: "6",
-    players: 2,
-    status: "Playing",
-    joined: false,
-  },
-];
+type RoomType = {
+  name: string;
+  players: string[];
+  started: boolean;
+};
 
 export default function LobbyPage() {
-  const signalR = useSignalR();
+  const signalR = useSignalR()!;
   const router = useRouter();
 
-  const [rooms, setRooms] = useState(roomsBase);
+  const [rooms, setRooms] = useState<RoomType[]>([] as RoomType[]);
+  const [moinho, setMoinho] = useState(false);
+  const joinedAnyRoom = rooms.some((room) => room.players.includes(signalR.connectionId ?? ''));
 
   useEffect(() => {
     signalR.on("PlayerJoined", (gameId: string, connectionId: string) => {
@@ -56,49 +25,65 @@ export default function LobbyPage() {
           room.name === gameId
             ? {
                 ...room,
-                joined: room.joined || connectionId === signalR.connectionId,
-                players: room.players + 1,
+                joined: room.players.includes(signalR.connectionId ?? '') || connectionId === signalR.connectionId,
+                players: room.players.concat(connectionId),
+              }
+            : { ...room }
+        )
+      );
+    });
+
+    signalR.on("PlayerLeft", (gameId: string, connectionId: string) => {
+      setRooms((rooms) =>
+        rooms.map((room) =>
+          room.name === gameId
+            ? {
+                ...room,
+                joined: room.players.includes(signalR.connectionId ?? '') && connectionId !== signalR.connectionId,
+                players: room.players.filter(
+                  (player) => player !== connectionId
+                ),
+              }
+            : { ...room }
+        )
+      );
+    });
+
+    signalR.on("StartGame", (gameId: string) => {
+      setRooms((rooms) =>
+        rooms.map((room) =>
+          room.name === gameId
+            ? {
+                ...room,
+                started: true,
               }
             : { ...room }
         )
       );
 
-      signalR.on("PlayerLeft", (gameId: string, connectionId: string) => {
-        setRooms((rooms) =>
-          rooms.map((room) =>
-            room.name === gameId
-              ? {
-                  ...room,
-                  joined: room.joined && connectionId !== signalR.connectionId,
-                  players: room.players - 1,
-                }
-              : { ...room }
-          )
-        );
-      });
-
-      signalR.on("StartGame", (gameId: string) => {
-        setRooms((rooms) =>
-          rooms.map((room) =>
-            room.name === gameId
-              ? {
-                  ...room,
-                  status: "Playing",
-                }
-              : { ...room }
-          )
-        );
-
-        router.push(`/game/${gameId}`);
-      });
-
-      return () => {
-        signalR.off("PlayerJoined");
-        signalR.off("PlayerLeft");
-        signalR.off("StartGame");
-      };
+      router.push(`/game/${gameId}`);
     });
-  }, [signalR]);
+
+    listRooms();
+
+    return () => {
+      signalR.off("PlayerJoined");
+      signalR.off("PlayerLeft");
+      signalR.off("StartGame");
+    };
+  }, [signalR, router]);
+
+  const listRooms = async () => {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL!}/api/lobby`,
+      {
+        cache: "no-cache",
+      }
+    );
+    const newRooms = (await response.json()) as RoomType[];
+    newRooms.sort((a, b) => parseInt(a.name) - parseInt(b.name));
+    setRooms(newRooms);
+  };
 
   const join = (gameId: string) => {
     signalR.invoke("Join", gameId);
@@ -114,19 +99,58 @@ export default function LobbyPage() {
 
   return (
     <>
-      <main className="rooms flex max-w-[900px] mx-auto my-8 gap-8 flex-shrink flex-wrap">
-        {rooms.map(({ name, players, status, joined }) => (
-          <Room
-            key={name}
-            name={name}
-            players={players}
-            status={status}
-            joined={joined}
-            join={join}
-            leave={leave}
-            ready={ready}
-          />
-        ))}
+      <main className="rooms flex max-w-[1100px] mx-auto my-8 gap-8 flex-shrink flex-wrap">
+        {rooms.map(({ name, players, started }) => {
+          const disabled = started || players.length === 2;
+          const joined = players.includes(signalR.connectionId ?? '');
+          return (
+            <Room.Root key={name}>
+              <h3>Room {name}</h3>
+
+              <Room.RoomContent>
+                <span>{players.length}/2</span>
+                <span>{started ? "Em progresso" : "Aguardando"}</span>
+              </Room.RoomContent>
+
+              {!joined ? (
+                !joinedAnyRoom && (
+                  <Room.RoomActions>
+                    <Room.RoomButton
+                      onClick={() => join(name)}
+                      action="join"
+                      disabled={disabled}
+                    >
+                      Join
+                    </Room.RoomButton>
+                  </Room.RoomActions>
+                )
+              ) : (
+                <div className="flex-1 flex flex-col justify-center">
+                  <label className="flex gap-4">
+                    <span>Moinho</span>
+                    <input
+                      title="moinho"
+                      type="checkbox"
+                      checked={moinho}
+                      onChange={() => setMoinho(!moinho)}
+                    />
+                  </label>
+                  <Room.RoomActions>
+                    <Room.RoomButton
+                      onClick={() => ready(name, moinho)}
+                      action="ready"
+                    >
+                      Ready
+                    </Room.RoomButton>
+                    <Room.RoomButton onClick={() => leave(name)} action="leave">
+                      Leave
+                    </Room.RoomButton>
+                  </Room.RoomActions>
+                </div>
+              )}
+            </Room.Root>
+          );
+        })}
       </main>
     </>
   );
