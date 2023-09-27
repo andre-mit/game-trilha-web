@@ -9,7 +9,7 @@ import Audio from "@/app/components/audio";
 
 export default function Game({params}: {params: {id: string}}) {
   const color = ColorEnum.Black;
-  const signalR = useSignalR()!;
+  const {connection: socketConnection} = useSignalR()!;
   const [turn, setTurn] = useState(ColorEnum.White);
   const [freePlaces, setFreePlaces] = useState<PlaceProps[]>([]);
   const [selectedPiece, setSelectedPiece] = useState<PlaceProps | null>(null);
@@ -50,7 +50,7 @@ export default function Game({params}: {params: {id: string}}) {
   }, []);
 
   useEffect(() => {
-    signalR.on("Move", (from: number[], to: number[]) => {
+    socketConnection.on("Move", (from: number[], to: number[]) => {
       move(
         { track: from[0], line: from[1], column: from[2] } as PlaceProps,
         { track: to[0], line: to[1], column: to[2] } as PlaceProps
@@ -58,7 +58,7 @@ export default function Game({params}: {params: {id: string}}) {
     });
 
     return () => {
-      signalR.off("Move");
+      socketConnection.off("Move");
     };
   });
 
@@ -122,7 +122,7 @@ export default function Game({params}: {params: {id: string}}) {
     const fromData = [track, line, column];
     const toData = [to.track, to.line, to.column];
 
-    signalR.invoke("Move", params.id, fromData, toData);
+    socketConnection.invoke("Move", params.id, fromData, toData);
   };
 
   const startTimer = () => {

@@ -10,7 +10,13 @@ import {
   useContext,
 } from "react";
 
-export const SignalRContext = createContext<HubConnection | null>(null);
+type SignalRContextType = {
+  connection: HubConnection;
+  isConnected: boolean;
+  connectionId: string | null;
+};
+
+export const SignalRContext = createContext<SignalRContextType | null>(null);
 
 export const SignalRProvider = ({
   children,
@@ -19,18 +25,28 @@ export const SignalRProvider = ({
   children: ReactNode;
   connectionUrl: string;
 }) => {
-  const [connection, setConnection] = useState(createHubConnection(connectionUrl));
+  const [connection, setConnection] = useState(
+    createHubConnection(connectionUrl)
+  );
+  const [isConnected, setIsConnected] = useState(false);
+  const [connectionId, setConnectionId] = useState<string | null>(null);
 
   useEffect(() => {
-    connection.start();
-
+    if (!isConnected) {
+      connection.start().then(() => {
+        setIsConnected(true);
+        setConnectionId(connection.connectionId);
+      });
+    }
     return () => {
       connection.stop();
     };
-  });
+  }, [connection]);
 
   return (
-    <SignalRContext.Provider value={connection}>
+    <SignalRContext.Provider
+      value={{ connection: connection, isConnected, connectionId }}
+    >
       {children}
     </SignalRContext.Provider>
   );

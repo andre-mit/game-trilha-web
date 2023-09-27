@@ -11,12 +11,12 @@ type RoomType = {
 };
 
 export default function LobbyPage() {
-  const signalR = useSignalR()!;
+  const {connection: signalR, connectionId: signalRId} = useSignalR()!;
   const router = useRouter();
 
   const [rooms, setRooms] = useState<RoomType[]>([] as RoomType[]);
   const [moinho, setMoinho] = useState(false);
-  const joinedAnyRoom = rooms.some((room) => room.players.includes(signalR.connectionId ?? ''));
+  const joinedAnyRoom = rooms.some((room) => room.players.includes(signalRId ?? ''));
 
   useEffect(() => {
     signalR.on("PlayerJoined", (gameId: string, connectionId: string) => {
@@ -25,7 +25,7 @@ export default function LobbyPage() {
           room.name === gameId
             ? {
                 ...room,
-                joined: room.players.includes(signalR.connectionId ?? '') || connectionId === signalR.connectionId,
+                joined: room.players.includes(signalRId ?? '') || connectionId === signalRId,
                 players: room.players.concat(connectionId),
               }
             : { ...room }
@@ -39,7 +39,7 @@ export default function LobbyPage() {
           room.name === gameId
             ? {
                 ...room,
-                joined: room.players.includes(signalR.connectionId ?? '') && connectionId !== signalR.connectionId,
+                joined: room.players.includes(signalRId ?? '') && connectionId !== signalRId,
                 players: room.players.filter(
                   (player) => player !== connectionId
                 ),
