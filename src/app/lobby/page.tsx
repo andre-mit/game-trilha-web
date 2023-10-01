@@ -3,6 +3,7 @@ import { use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSignalR } from "@/context/signalR/signalRContext";
 import Room from "./components/Room/";
+import ColorEnum from "@/enums/colorEnum";
 
 type RoomType = {
   name: string;
@@ -49,7 +50,7 @@ export default function LobbyPage() {
       );
     });
 
-    signalR.on("StartGame", (gameId: string) => {
+    signalR.on("StartGame", (gameId: string, color: ColorEnum) => {
       setRooms((rooms) =>
         rooms.map((room) =>
           room.name === gameId
@@ -61,7 +62,7 @@ export default function LobbyPage() {
         )
       );
 
-      router.push(`/game/${gameId}`);
+      router.push(`/game/${gameId}?color=${color}`);
     });
 
     listRooms();

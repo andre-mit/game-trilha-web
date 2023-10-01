@@ -1,40 +1,36 @@
 "use client";
-import { useEffect, useState, useRef } from "react";
+import { useEffect } from "react";
 import Board from "../../components/board/board";
-import Piece, { PieceProps, PlaceProps } from "@/app/components/board/piece";
+import Piece, { PlaceProps } from "@/app/components/board/piece";
 import ColorEnum from "@/enums/colorEnum";
-import { getPlaces } from "@/helpers/placesVerification";
 import { useSignalR } from "@/context/signalR/signalRContext";
 import Audio from "@/app/components/audio";
+import useGame from "./useGame";
 
-export default function Game({params}: {params: {id: string}}) {
-  const color = ColorEnum.Black;
-  const {connection: socketConnection} = useSignalR()!;
-  const [turn, setTurn] = useState(ColorEnum.White);
-  const [freePlaces, setFreePlaces] = useState<PlaceProps[]>([]);
-  const [selectedPiece, setSelectedPiece] = useState<PlaceProps | null>(null);
-  const [timer, setTimer] = useState(15);
+export default function Game({
+  params,
+  searchParams: { color: myColor },
+}: {
+  params: { id: string };
+  searchParams: { color: ColorEnum };
+}) {
+  const { connection: socketConnection } = useSignalR()!;
+  const {
+    freePlaces,
+    pieces,
+    playType,
+    pendingPlacePieces,
+    selectedPiece,
+    timer,
+    turn,
+    handleMakeMove,
+    handleMakePlace,
+    handleMoveStage,
+    handlePlaceStage,
+    handleToggleSelectPiece,
+  } = useGame(myColor);
 
-  const [pieces, setPieces] = useState<PieceProps[]>([
-    {
-      id: "1234",
-      color: ColorEnum.Black,
-      place: { track: 0, line: 0, column: 0 } as PlaceProps,
-      onSelect: (p) => toggleSelectPiece(p),
-    },
-    {
-      id: "1235",
-      color: ColorEnum.White,
-      place: { track: 0, line: 0, column: 1 } as PlaceProps,
-      onSelect: (p) => toggleSelectPiece(p),
-    },
-    {
-      id: "1236",
-      color: ColorEnum.White,
-      place: { track: 1, line: 2, column: 1 } as PlaceProps,
-      onSelect: (p) => toggleSelectPiece(p),
-    },
-  ]);
+  const myTurn = turn == myColor;
 
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
@@ -50,71 +46,52 @@ export default function Game({params}: {params: {id: string}}) {
   }, []);
 
   useEffect(() => {
+    socketConnection.on("PlaceStage", handlePlaceStage)
+
+    socketConnection.on("MoveStage", handleMoveStage);
+
     socketConnection.on("Move", (from: number[], to: number[]) => {
-      move(
+      handleMakeMove(
         { track: from[0], line: from[1], column: from[2] } as PlaceProps,
         { track: to[0], line: to[1], column: to[2] } as PlaceProps
       );
     });
 
+    socketConnection.on(
+      "Place",
+      (
+        pieceId: string,
+        place: number[],
+        color: ColorEnum,
+        pendingPieces: Record<ColorEnum, number>
+      ) => {
+        handleMakePlace(
+          pieceId,
+          place as [number, number, number],
+          color,
+          pendingPieces
+        );
+      }
+    );
     return () => {
       socketConnection.off("Move");
     };
-  });
+  }, []);
 
-  useEffect(() => {
-    startTimer();
-    if (selectedPiece !== null) {
-      let freeP = [] as PlaceProps[];
-      const { track, line, column } = selectedPiece as PlaceProps;
-      const places = getPlaces(track, line, column);
-
-      places.forEach((place) => {
-        let piece = pieces.find(
-          (p) =>
-            p.place.track === place.track &&
-            p.place.line === place.line &&
-            p.place.column === place.column
-        );
-        if (!piece)
-          freeP.push({
-            track: place.track as 0 | 1 | 2,
-            line: place.line as 0 | 1 | 2,
-            column: place.column as 0 | 1 | 2,
-          });
-      });
-
-      setFreePlaces(freeP);
-    } else setFreePlaces([]);
-  }, [selectedPiece, pieces]);
-
-  const toggleSelectPiece = (e: PlaceProps) => {
-    const { column, line, track } = e;
-    setSelectedPiece((old) =>
-      old?.track === track && old?.column === column && old?.line === line
-        ? null
-        : e
-    );
-  };
-
-  const move = (from: PlaceProps, to: PlaceProps) => {
-    var newPieces = [...pieces];
-
-    var index = newPieces.findIndex(
-      (p) =>
-        p.place.track === from.track &&
-        p.place.line === from.line &&
-        p.place.column === from.column
-    );
-
-    newPieces[index].place = {
-      track: to.track,
-      line: to.line,
-      column: to.column,
-    };
-
-    setSelectedPiece(null);
-    setPieces(newPieces);
+  const handlePlay = (to: PlaceProps) => {
+    if (myTurn) {
+      if (playType === "move") {
+        if (selectedPiece !== null) {
+          handleMove(to);
+        } else {
+          handleToggleSelectPiece(to);
+        }
+      } else if (playType === "place") {
+        handlePlace(to);
+      } else if (playType === "remove") {
+        handleRemove(to);
+      }
+    }
   };
 
   const handleMove = (to: PlaceProps) => {
@@ -125,27 +102,76 @@ export default function Game({params}: {params: {id: string}}) {
     socketConnection.invoke("Move", params.id, fromData, toData);
   };
 
-  const startTimer = () => {
-    const interval = setInterval(() => {
-      setTimer((old) => old - 1);
-    }, 1000);
+  const handlePlace = (to: PlaceProps) => {
+    const { column, line, track } = to;
+    const data = [track, line, column];
+    console.log("Place", params.id, data);
+    socketConnection.invoke("Place", params.id, data);
   };
+
+  const handleRemove = (place: PlaceProps) => {
+    const { column, line, track } = place;
+    const data = [track, line, column];
+
+    socketConnection.invoke("Remove", params.id, data);
+  };
+
+  function getFreePlaces() {
+    const freeP = [] as PlaceProps[];
+    for (let track = 0; track < 3; track++) {
+      for (let line = 0; line < 3; line++) {
+        for (let column = 0; column < 3; column++) {
+          if (line === 1 && column === 1) continue;
+          const piece = pieces.find(
+            (p) =>
+              p.place.track === track &&
+              p.place.line === line &&
+              p.place.column === column
+          );
+          if (!piece) {
+            freeP.push({
+              track: track as 0 | 1 | 2,
+              line: line as 0 | 1 | 2,
+              column: column as 0 | 1 | 2,
+            });
+          }
+        }
+      }
+    }
+    return freeP;
+  }
 
   return (
     <>
       <header className="pt-4 pl-4 pr-4 flex items-center justify-between">
         <Audio src="https://gametrilha.blob.core.windows.net/assets/music/mario.mp3" />
         <div className="timer justify-self-end">
-          <span className={`text-white font-semibold text-md rounded-full px-3 py-1 min-w-full ${timer > 5 ? 'bg-green-500 dark:bg-green-400' : 'bg-red-600 dark:bg-red-500'}`}>
+          <span
+            className={`text-white font-semibold text-md rounded-full px-3 py-1 min-w-full ${
+              timer > 5
+                ? "bg-green-500 dark:bg-green-400"
+                : "bg-red-600 dark:bg-red-500"
+            }`}
+          >
             {timer} segs
           </span>
         </div>
         <div className="turn">
-          <span>{turn === color ? "Sua vez" : "Vez do adversário"}</span>
+          <span>{myTurn ? "Sua vez" : "Vez do adversário"}</span>
         </div>
       </header>
+      <div>
+        {!!freePlaces &&
+          freePlaces.map((place) => (
+            <div key={`place-${place.track}${place.line}${place.column}`}>
+              <span>{place.track}</span>
+              <span>{place.line}</span>
+              <span>{place.column}</span>
+            </div>
+          ))}
+      </div>
       <main className="flex min-h-screen flex-col items-center justify-between p-24">
-        <Board freePlaces={freePlaces} handleMove={handleMove}>
+        <Board freePlaces={freePlaces ?? []} handleMove={handlePlay}>
           {pieces.map((piece) => {
             return (
               <Piece
@@ -153,7 +179,7 @@ export default function Game({params}: {params: {id: string}}) {
                 id={piece.id}
                 color={piece.color}
                 place={piece.place}
-                onSelect={piece.onSelect}
+                onSelect={() => handleToggleSelectPiece(piece.place)}
               />
             );
           })}

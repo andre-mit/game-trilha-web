@@ -9,7 +9,7 @@ export default function Audio({src, ...rest}: ComponentProps<'audio'>) {
 
   useEffect(() => {
     if (audioRef) {
-      audioRef.current!.play();
+      // audioRef.current!.play();
       audioRef.current!.volume = volume / 100;
 
       if (volume === 0) setIsMuted(true);
