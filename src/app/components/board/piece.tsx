@@ -1,6 +1,7 @@
 import ColorEnum from "@/enums/colorEnum";
 import { motion } from "framer-motion";
 import { BoardPositions } from "@/app/components/board/boardPositions";
+import { drawEffect } from "./board";
 
 export type PlaceProps = {
   track: 0 | 1 | 2;
@@ -12,17 +13,21 @@ export type PieceProps = {
   id: string;
   color: ColorEnum;
   skin?: string;
+  highlight: boolean;
 
   place: PlaceProps;
   onSelect: (place: PlaceProps) => void;
+  onRemove: (place: PlaceProps) => void;
 };
 
 export default function Piece({
   id,
   color,
+  highlight,
   skin,
   place: { track, line, column },
   onSelect,
+  onRemove,
 }: PieceProps) {
   const colorClass = color === ColorEnum.Black ? "black" : "white";
 
@@ -30,7 +35,10 @@ export default function Piece({
     (p) => p.line === line && p.column === column
   )?.position;
 
-  const handleClick = () => onSelect({ track, line, column });
+  const handleClick = () =>
+    highlight
+      ? onSelect({ track, line, column })
+      : onRemove({track, line, column});
 
   const x = position?.x;
   const y = position?.y;
@@ -48,6 +56,23 @@ export default function Piece({
         stroke={colorClass}
         onClick={handleClick}
       />
+      {highlight && (
+        <motion.circle
+          cx={x}
+          cy={y}
+          r="13"
+          fill={"transparent"}
+          initial="hidden"
+          animate="visible"
+          stroke="#960000"
+          strokeWidth={4}
+          variants={drawEffect}
+          custom={3}
+          className="cursor-pointer"
+          onClick={handleClick}
+        />
+      )}
+      ;
     </>
   );
 }

@@ -1,7 +1,20 @@
 import { motion } from "framer-motion";
 import { BoardPositions } from "./boardPositions";
 import { PlaceProps } from "./piece";
-import { useEffect } from "react";
+
+export const drawEffect = {
+  hidden: { pathLength: 0, opacity: 0 },
+  visible: (i: number) => {
+    return {
+      pathLength: 1,
+      opacity: 1,
+      transition: {
+        pathLength: { type: "spring", duration: 1.5, bounce: 0 },
+        opacity: { duration: 0.01 },
+      },
+    };
+  },
+};
 
 export default function Board({
   children,
@@ -12,19 +25,6 @@ export default function Board({
   freePlaces: PlaceProps[];
   handleMove: (to: PlaceProps) => void;
 }) {
-  const draw = {
-    hidden: { pathLength: 0, opacity: 0 },
-    visible: (i: number) => {
-      return {
-        pathLength: 1,
-        opacity: 1,
-        transition: {
-          pathLength: { type: "spring", duration: 1.5, bounce: 0 },
-          opacity: { duration: 0.01 },
-        },
-      };
-    },
-  };
 
   return (
     <motion.svg
@@ -74,7 +74,7 @@ export default function Board({
                     animate="visible"
                     stroke="#00962d"
                     strokeWidth={3}
-                    variants={draw}
+                    variants={drawEffect}
                     custom={3}
                     className="cursor-pointer"
                     onClick={() => {
@@ -122,7 +122,7 @@ export default function Board({
                     animate="visible"
                     stroke="#00962d"
                     strokeWidth={3}
-                    variants={draw}
+                    variants={drawEffect}
                     custom={3}
                     className="cursor-pointer"
                     onClick={() => {
@@ -170,7 +170,7 @@ export default function Board({
                     animate="visible"
                     stroke="#00962d"
                     strokeWidth={3}
-                    variants={draw}
+                    variants={drawEffect}
                     custom={3}
                     className="cursor-pointer"
                     onClick={() => {

@@ -28,6 +28,7 @@ export default function Game({
     handleMoveStage,
     handlePlaceStage,
     handleToggleSelectPiece,
+    handleMakeRemove,
   } = useGame(myColor);
 
   const myTurn = turn == myColor;
@@ -46,7 +47,7 @@ export default function Game({
   }, []);
 
   useEffect(() => {
-    socketConnection.on("PlaceStage", handlePlaceStage)
+    socketConnection.on("PlaceStage", handlePlaceStage);
 
     socketConnection.on("MoveStage", handleMoveStage);
 
@@ -73,6 +74,10 @@ export default function Game({
         );
       }
     );
+
+    socketConnection.on("Remove", (place: Array<0 | 1 | 2>) => {
+      handleMakeRemove(place[0], place[1], place[2]);
+    });
     return () => {
       socketConnection.off("Move");
     };
@@ -116,31 +121,6 @@ export default function Game({
     socketConnection.invoke("Remove", params.id, data);
   };
 
-  function getFreePlaces() {
-    const freeP = [] as PlaceProps[];
-    for (let track = 0; track < 3; track++) {
-      for (let line = 0; line < 3; line++) {
-        for (let column = 0; column < 3; column++) {
-          if (line === 1 && column === 1) continue;
-          const piece = pieces.find(
-            (p) =>
-              p.place.track === track &&
-              p.place.line === line &&
-              p.place.column === column
-          );
-          if (!piece) {
-            freeP.push({
-              track: track as 0 | 1 | 2,
-              line: line as 0 | 1 | 2,
-              column: column as 0 | 1 | 2,
-            });
-          }
-        }
-      }
-    }
-    return freeP;
-  }
-
   return (
     <>
       <header className="pt-4 pl-4 pr-4 flex items-center justify-between">
@@ -158,6 +138,7 @@ export default function Game({
         </div>
         <div className="turn">
           <span>{myTurn ? "Sua vez" : "Vez do adversário"}</span>
+          <span>{turn}</span>
         </div>
       </header>
       <div>
@@ -179,7 +160,9 @@ export default function Game({
                 id={piece.id}
                 color={piece.color}
                 place={piece.place}
+                highlight={piece.highlight}
                 onSelect={() => handleToggleSelectPiece(piece.place)}
+                onRemove={handleRemove}
               />
             );
           })}

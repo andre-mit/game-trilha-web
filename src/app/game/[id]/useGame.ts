@@ -20,7 +20,7 @@ type ActionProps =
   | {
       type: "makePlace";
       payload: {
-        pieceId:string;
+        pieceId: string;
         place: [number, number, number];
         color: ColorEnum;
         pendingPieces: Record<ColorEnum, number>;
@@ -57,7 +57,7 @@ export default function useGame(color: ColorEnum) {
     color,
     pendingPieces,
   }: {
-    pieceId:string;
+    pieceId: string;
     place: [number, number, number];
     color: ColorEnum;
     pendingPieces: Record<ColorEnum, number>;
@@ -68,9 +68,11 @@ export default function useGame(color: ColorEnum) {
       id: pieceId,
       color,
       place: { track, line, column } as PlaceProps,
+      highlight: false,
       onSelect(place) {
         dispatch({ type: "toggleSelectPiece", payload: place });
       },
+      onRemove() {},
     };
 
     return { pendingPlacePieces: pendingPieces, piece: newPiece };
@@ -116,6 +118,79 @@ export default function useGame(color: ColorEnum) {
     return freePieces;
   }
 
+  function getAvailableRemovePieces() {
+    var opponentPieces = state.pieces.filter((p) => p.color !== color);
+    // verify moinho
+    let pieces = opponentPieces.map((p) => {
+      return {
+        ...p,
+        isMoinho:
+          moinhoCrossTrack(p.place.line, p.place.column) ||
+          trackHasMoinhoByPosition(p.place.track, p.place.line, p.place.column),
+      };
+    });
+
+    if (pieces.some((p) => !p.isMoinho)) {
+      return pieces.filter((p) => !p.isMoinho).map((p) => p.id);
+    }
+
+    return pieces.map((p) => p.id);
+  }
+
+  const positionsMoinhoCrossTrack = [
+    { line: 0, column: 1 },
+    { line: 1, column: 0 },
+    { line: 2, column: 1 },
+    { line: 1, column: 2 },
+  ];
+
+  function moinhoCrossTrack(line: number, column: number) {
+    if (
+      positionsMoinhoCrossTrack.some(
+        (p) => p.line === line && p.column === column
+      )
+    ) {
+      const pieces = state.pieces.filter(
+        (p) =>
+          p.place.line === line &&
+          p.place.column === column &&
+          p.color !== color
+      );
+      if (pieces.length === 3) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function trackHasMoinhoByPosition(
+    track: number,
+    line: number,
+    column: number
+  ) {
+    // verify line
+    let pieces = state.pieces.filter(
+      (p) =>
+        p.place.track === track && p.place.line === line && p.color !== color
+    );
+    if (pieces.length === 3) {
+      return true;
+    }
+
+    // verify column
+    pieces = state.pieces.filter(
+      (p) =>
+        p.place.track === track &&
+        p.place.column === column &&
+        p.color !== color
+    );
+    if (pieces.length === 3) {
+      return true;
+    }
+
+    return false;
+  }
+
   const reducer = (state: StateProps, action: ActionProps): StateProps => {
     switch (action.type) {
       case "placeStage":
@@ -129,9 +204,22 @@ export default function useGame(color: ColorEnum) {
         const turn = action.payload;
         const playType = "move";
         const timer = 15;
-        return { ...state, turn, playType, timer };
+        const freePlaces = [] as PlaceProps[];
+        return { ...state, turn, playType, timer, freePlaces };
       case "removeStage":
-        return { ...state /*,...action.payload*/ };
+        if (action.payload !== color) return state;
+
+        const pType = "remove";
+        const availableRemove = getAvailableRemovePieces();
+        console.log("Available", availableRemove);
+        const piecesHighlight = state.pieces.map((p) => {
+          return {
+            ...p,
+            highlight: availableRemove.includes(p.id),
+          };
+        });
+
+        return { ...state, pieces: piecesHighlight, playType: pType };
       case "makePlace":
         const makePlaceResult = makePlace(action.payload);
 
@@ -158,7 +246,18 @@ export default function useGame(color: ColorEnum) {
 
         return { ...state, pieces: newPieces };
       case "makeRemove":
-        return { ...state, ...action.payload };
+        const newPiecesRemoved = state.pieces
+          .filter(
+            (p) =>
+              p.place.track !== action.payload.track ||
+              p.place.line !== action.payload.line ||
+              p.place.column !== action.payload.column
+          )
+          .map((p) => {
+            return { ...p, highlight: false };
+          });
+
+        return { ...state, pieces: newPiecesRemoved };
       case "toggleSelectPiece":
         const { column, line, track } = action.payload;
         state.selectedPiece =
@@ -197,12 +296,15 @@ export default function useGame(color: ColorEnum) {
   };
 
   const handleMakePlace = (
-    pieceId:string,
+    pieceId: string,
     place: [number, number, number],
     color: ColorEnum,
     pendingPieces: Record<ColorEnum, number>
   ) => {
-    dispatch({ type: "makePlace", payload: { pieceId, place, pendingPieces, color } });
+    dispatch({
+      type: "makePlace",
+      payload: { pieceId, place, pendingPieces, color },
+    });
   };
 
   const handleMakeMove = (from: PlaceProps, to: PlaceProps) => {
@@ -211,6 +313,18 @@ export default function useGame(color: ColorEnum) {
 
   const handleToggleSelectPiece = (place: PlaceProps) => {
     dispatch({ type: "toggleSelectPiece", payload: place });
+  };
+
+  const handleMoinho = (turn: ColorEnum) => {
+    dispatch({ type: "removeStage", payload: turn });
+  };
+
+  const handleMakeRemove = (
+    track: 0 | 1 | 2,
+    line: 0 | 1 | 2,
+    column: 0 | 1 | 2
+  ) => {
+    dispatch({ type: "makeRemove", payload: { track, line, column } });
   };
 
   return {
@@ -227,5 +341,7 @@ export default function useGame(color: ColorEnum) {
     handleMakePlace,
     handleMakeMove,
     handleToggleSelectPiece,
+    handleMoinho,
+    handleMakeRemove,
   };
 }
