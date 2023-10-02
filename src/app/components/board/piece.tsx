@@ -36,7 +36,7 @@ export default function Piece({
   )?.position;
 
   const handleClick = () =>
-    highlight
+    !highlight
       ? onSelect({ track, line, column })
       : onRemove({track, line, column});
 
@@ -47,6 +47,7 @@ export default function Piece({
     <>
       <motion.circle
         id={id}
+        aria-description={highlight ? "remove" : "piece"}
         animate={{ cx: x, cy: y }}
         cx={x}
         cy={y}
@@ -72,7 +73,6 @@ export default function Piece({
           onClick={handleClick}
         />
       )}
-      ;
     </>
   );
 }

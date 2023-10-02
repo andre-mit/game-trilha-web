@@ -29,6 +29,7 @@ export default function Game({
     handlePlaceStage,
     handleToggleSelectPiece,
     handleMakeRemove,
+    handleMoinho,
   } = useGame(myColor);
 
   const myTurn = turn == myColor;
@@ -50,6 +51,8 @@ export default function Game({
     socketConnection.on("PlaceStage", handlePlaceStage);
 
     socketConnection.on("MoveStage", handleMoveStage);
+
+    socketConnection.on("Moinho", handleMoinho);
 
     socketConnection.on("Move", (from: number[], to: number[]) => {
       handleMakeMove(
@@ -78,8 +81,24 @@ export default function Game({
     socketConnection.on("Remove", (place: Array<0 | 1 | 2>) => {
       handleMakeRemove(place[0], place[1], place[2]);
     });
+
+    socketConnection.on("Win", () => {
+      alert("Você venceu!");
+    });
+
+    socketConnection.on("Lose", () => {
+      alert("Você perdeu!");
+    });
+
     return () => {
       socketConnection.off("Move");
+      socketConnection.off("Place");
+      socketConnection.off("Remove");
+      socketConnection.off("Win");
+      socketConnection.off("Lose");
+      socketConnection.off("Moinho");
+      socketConnection.off("MoveStage");
+      socketConnection.off("PlaceStage");
     };
   }, []);
 
@@ -99,26 +118,25 @@ export default function Game({
     }
   };
 
-  const handleMove = (to: PlaceProps) => {
+  const handleMove = async (to: PlaceProps) => {
     const { column, line, track } = selectedPiece!;
     const fromData = [track, line, column];
     const toData = [to.track, to.line, to.column];
 
-    socketConnection.invoke("Move", params.id, fromData, toData);
+    await socketConnection.invoke("Move", params.id, fromData, toData);
   };
 
-  const handlePlace = (to: PlaceProps) => {
+  const handlePlace = async (to: PlaceProps) => {
     const { column, line, track } = to;
     const data = [track, line, column];
-    console.log("Place", params.id, data);
-    socketConnection.invoke("Place", params.id, data);
+    await socketConnection.invoke("Place", params.id, data);
   };
 
-  const handleRemove = (place: PlaceProps) => {
+  const handleRemove = async (place: PlaceProps) => {
     const { column, line, track } = place;
     const data = [track, line, column];
-
-    socketConnection.invoke("Remove", params.id, data);
+    console.log("Remove pq?", data);
+    await socketConnection.invoke("Remove", params.id, data);
   };
 
   return (
