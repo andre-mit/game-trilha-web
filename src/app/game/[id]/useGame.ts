@@ -1,7 +1,7 @@
 import { useReducer } from "react";
 import { PieceProps, PlaceProps } from "@/app/components/board/piece";
 import ColorEnum from "@/enums/colorEnum";
-import { getPlaces } from "@/helpers/placesVerification";
+import { getAllBoardPlaces, getPlaces } from "@/helpers/placesVerification";
 
 type StateProps = {
   turn: ColorEnum;
@@ -286,11 +286,11 @@ export default function useGame(color: ColorEnum) {
           state.selectedPiece?.line === line &&
           state.selectedPiece?.track === track
             ? null
-            : action.payload;
+            : state.pieces.find(p => p.color == color && p.place.track == track && p.place.column == column && p.place.line == line)?.place ?? null;
 
         let freeP = [] as PlaceProps[];
         if (!!selectedPiece) {
-          const places = getPlaces(track, line, column);
+          const places = state.pieces.filter(p => p.color == color).length > 3 ? getPlaces(track, line, column) : getAllBoardPlaces();
 
           places.forEach((place) => {
             let piece = state.pieces.find(

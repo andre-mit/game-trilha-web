@@ -28,9 +28,9 @@ export default function Board({
 
   return (
     <motion.svg
-      width={800}
-      height={800}
-      className="fill-slate-500 stroke-gray-400 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-lg"
+      // width={800}
+      // height={800}
+      className="fill-slate-500 stroke-gray-400 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-lg flex-1 max-h-[350px] max-w-[350px] sm:max-h-[500px] sm:max-w-[500px] md:max-h-[600px] md:max-w-[600px] lg:max-h-[800px] lg:max-w-[800px]"
       viewBox="-15 -15 330 330"
       xmlns="http://www.w3.org/2000/svg"
     >

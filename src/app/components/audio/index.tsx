@@ -44,7 +44,7 @@ export default function Audio({src, ...rest}: ComponentProps<'audio'>) {
         >
           {isPlaying ? <MdPause /> : <MdPlayArrow />}
         </button>
-        <div className="controls hidden flex-col justify-center items-center group-hover:flex transition-all">
+        <div className="flex controls sm:hidden flex-col justify-center items-center sm:group-hover:flex transition-all">
           <input
             className="w-40 h-4 bg-slate-100 dark:bg-slate-700 accent-slate-700 dark:accent-slate-100 rounded-full appearance-none cursor-pointer"
             type="range"

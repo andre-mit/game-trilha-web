@@ -1,4 +1,6 @@
-const track0 = {
+import { PlaceProps } from "@/app/components/board/piece";
+
+const track0: Record<string, PlaceProps[]> = {
   "00": [
     { track: 0, line: 1, column: 0 },
     { track: 0, line: 0, column: 1 },
@@ -37,7 +39,7 @@ const track0 = {
   ],
 };
 
-const track1 = {
+const track1: Record<string, PlaceProps[]> = {
   "00": [
     { track: 1, line: 1, column: 0 },
     { track: 1, line: 0, column: 1 },
@@ -80,7 +82,7 @@ const track1 = {
   ],
 };
 
-const track2 = {
+const track2: Record<string, PlaceProps[]> = {
   "00": [
     { track: 2, line: 1, column: 0 },
     { track: 2, line: 0, column: 1 },
@@ -122,7 +124,7 @@ const track2 = {
 export const placesToVerify = [track0, track1, track2];
 
 export const getPlaces = (
-  track: number,
+  track: 0 | 1 | 2,
   line: 0 | 1 | 2,
   column: 0 | 1 | 2
 ) => {
@@ -130,5 +132,18 @@ export const getPlaces = (
     placesToVerify[track][
       `${line}${column}` as keyof (typeof placesToVerify)[0]
     ];
+  return places;
+};
+
+export const getAllBoardPlaces = () => {
+  const places: PlaceProps[] = [];
+  for (let track = 0; track < 3; track++) {
+    for (let line = 0; line < 3; line++) {
+      for (let column = 0; column < 3; column++) {
+        if(line === 1 && column === 1) continue;
+        places.push({ track, line, column } as PlaceProps);
+      }
+    }
+  }
   return places;
 };

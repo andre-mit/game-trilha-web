@@ -17,7 +17,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR">
-      <body className={inter.className}>
+      <body className={`${inter.className} min-h-screen`}>
         <SignalRProvider connectionUrl={`${process.env.NEXT_PUBLIC_API_URL!}/game`}>{children}</SignalRProvider>
       </body>
     </html>

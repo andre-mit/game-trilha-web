@@ -6,6 +6,7 @@ import ColorEnum from "@/enums/colorEnum";
 import { useSignalR } from "@/context/signalR/signalRContext";
 import Audio from "@/app/components/audio";
 import useGame from "./useGame";
+import PlayerPendingPieces from "@/app/components/board/playerPendingPieces";
 
 export default function Game({
   params,
@@ -33,6 +34,9 @@ export default function Game({
   } = useGame(myColor);
 
   const myTurn = turn == myColor;
+  const pendingMyPlacePieces = Object.values(pendingPlacePieces)[myColor];
+  const pendingOpponentPlacePieces =
+    Object.values(pendingPlacePieces)[myColor == 0 ? 1 : 0];
 
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
@@ -89,6 +93,8 @@ export default function Game({
     socketConnection.on("Lose", () => {
       alert("Você perdeu!");
     });
+    console.log("useEffect");
+    socketConnection.invoke("Loaded", params.id);
 
     return () => {
       socketConnection.off("Move");
@@ -140,8 +146,8 @@ export default function Game({
   };
 
   return (
-    <>
-      <header className="pt-4 pl-4 pr-4 flex items-center justify-between">
+    <div className="flex flex-col min-h-screen">
+      <header className="pt-4 px-4 flex flex-col gap-3 sm:gap-0 sm:flex-row items-center justify-between">
         <Audio src="https://gametrilha.blob.core.windows.net/assets/music/mario.mp3" />
         <div className="timer justify-self-end">
           <span
@@ -156,20 +162,17 @@ export default function Game({
         </div>
         <div className="turn">
           <span>{myTurn ? "Sua vez" : "Vez do adversário"}</span>
-          <span>{turn}</span>
         </div>
       </header>
-      <div>
-        {!!freePlaces &&
-          freePlaces.map((place) => (
-            <div key={`place-${place.track}${place.line}${place.column}`}>
-              <span>{place.track}</span>
-              <span>{place.line}</span>
-              <span>{place.column}</span>
-            </div>
-          ))}
-      </div>
-      <main className="flex min-h-screen flex-col items-center justify-between p-24">
+      <main className="flex flex-col sm:flex-col lg:flex-row items-center justify-evenly p-4 gap-2 flex-1">
+        {!!pendingMyPlacePieces && (
+          <PlayerPendingPieces
+            count={pendingMyPlacePieces}
+            text="Minhas Peças"
+            containerType="my"
+            pieceColor={myColor == ColorEnum.White ? "white" : "black"}
+          />
+        )}
         <Board freePlaces={freePlaces ?? []} handleMove={handlePlay}>
           {pieces.map((piece) => {
             return (
@@ -185,7 +188,23 @@ export default function Game({
             );
           })}
         </Board>
+        {!!pendingOpponentPlacePieces && (
+          <PlayerPendingPieces
+            count={pendingOpponentPlacePieces}
+            text="Peças Adversárias"
+            containerType="opponent"
+            pieceColor={myColor == ColorEnum.White ? "black" : "white"}
+          />
+        )}
+        {/* {!!pendingPlacePieces[myColor == 0 ? 1 : 0] && (
+          <div className="opponent-pending">
+            <span>
+              Peças inimigas para colocar:{" "}
+              {pendingPlacePieces[myColor == 0 ? 1 : 0]}
+            </span>
+          </div>
+        )} */}
       </main>
-    </>
+    </div>
   );
 }
