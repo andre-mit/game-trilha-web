@@ -31,7 +31,7 @@ export default function Home() {
         </div>
       </header>
       <main className="flex flex-wrap gap-6 max-w-[500px] place-self-center items-center justify-center">
-        <ButtonLink size="md" href="/game">
+        <ButtonLink size="md" href="/lobby">
           Jogar
         </ButtonLink>
         <Button size="md">Loja</Button>

@@ -52,6 +52,7 @@ export default function Game({
   }, []);
 
   useEffect(() => {
+    if(!socketConnection) return;
     socketConnection.on("PlaceStage", handlePlaceStage);
 
     socketConnection.on("MoveStage", handleMoveStage);
@@ -93,7 +94,6 @@ export default function Game({
     socketConnection.on("Lose", () => {
       alert("Você perdeu!");
     });
-    console.log("useEffect");
     socketConnection.invoke("Loaded", params.id);
 
     return () => {
@@ -106,7 +106,8 @@ export default function Game({
       socketConnection.off("MoveStage");
       socketConnection.off("PlaceStage");
     };
-  }, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [socketConnection]);
 
   const handlePlay = (to: PlaceProps) => {
     if (myTurn) {
