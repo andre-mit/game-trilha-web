@@ -202,29 +202,30 @@ export default function useGame(color: ColorEnum) {
   };
 
   const reducer = (state: StateProps, action: ActionProps): StateProps => {
+    let playType: "place" | "move" | "remove" = "place"
     switch (action.type) {
       case "placeStage":
+        playType = "place";
         const placeStageResult = placeStage(
           action.payload.turn,
           action.payload.pendingPieces,
           state.pieces
         );
-        console.log("Place Stage", placeStageResult);
-        return { ...state, ...placeStageResult };
+        
+        return { ...state, playType, ...placeStageResult };
       case "moveStage":
         const turn = action.payload;
-        const playType = "move";
+        playType = "move";
         const timer = 15;
         const freePlaces = [] as PlaceProps[];
-        console.log("Move Stage", turn, "pieces", state.pieces, "turn", turn);
+        
         return { ...state, turn, playType, timer, freePlaces };
       case "removeStage":
-        console.log("Remove Stage - Payload", action.payload);
         if (action.payload != color) return state;
 
-        const pType = "remove";
+        playType = "remove";
         const availableRemove = getAvailableRemovePieces(state.pieces);
-        console.log("Available", availableRemove);
+        
         const piecesHighlight = state.pieces.map((p) => {
           return {
             ...p,
@@ -235,13 +236,13 @@ export default function useGame(color: ColorEnum) {
         return {
           ...state,
           pieces: piecesHighlight,
-          playType: pType,
+          playType: playType,
           timer: 15,
           freePlaces: [],
         };
       case "makePlace":
         const makePlaceResult = makePlace(action.payload);
-        console.log("Make Place", makePlaceResult);
+        
         return {
           ...state,
           pendingPlacePieces: makePlaceResult.pendingPlacePieces,
@@ -278,7 +279,6 @@ export default function useGame(color: ColorEnum) {
 
         return { ...state, pieces: newPiecesRemoved };
       case "toggleSelectPiece":
-        console.log("toggle select piece, turn", action.payload, state.turn);
         if (state.turn != color) return state;
         const { column, line, track } = action.payload;
         const selectedPiece =
@@ -354,7 +354,6 @@ export default function useGame(color: ColorEnum) {
   };
 
   const handleToggleSelectPiece = (place: PlaceProps) => {
-    console.log("toggle select piece", place);
     dispatch({ type: "toggleSelectPiece", payload: place });
   };
 

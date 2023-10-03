@@ -142,7 +142,7 @@ export default function Game({
   const handleRemove = async (place: PlaceProps) => {
     const { column, line, track } = place;
     const data = [track, line, column];
-    console.log("Remove pq?", data);
+    
     await socketConnection.invoke("Remove", params.id, data);
   };
 
