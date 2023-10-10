@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@lottiefiles/react-lottie-player": "^3.5.3",
     "@microsoft/signalr": "^7.0.10",
     "@types/node": "20.5.1",
     "@types/react": "18.2.20",

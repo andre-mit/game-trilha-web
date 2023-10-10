@@ -1,7 +1,7 @@
 "use client";
 
 import createHubConnection from "@/services/signalRClient";
-import { HubConnection } from "@microsoft/signalr";
+import { HubConnection, HubConnectionState } from "@microsoft/signalr";
 import {
   createContext,
   useEffect,
@@ -12,7 +12,6 @@ import {
 
 type SignalRContextType = {
   connection: HubConnection;
-  isConnected: boolean;
   connectionId: string | null;
 };
 
@@ -28,25 +27,18 @@ export const SignalRProvider = ({
   const [connection, setConnection] = useState(
     createHubConnection(connectionUrl)
   );
-  const [isConnected, setIsConnected] = useState(false);
   const [connectionId, setConnectionId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!isConnected) {
+    if (connection.state !== HubConnectionState.Connected && connection.state !== HubConnectionState.Connecting) {
       connection.start().then(() => {
-        setIsConnected(true);
         setConnectionId(connection.connectionId);
       });
     }
-    return () => {
-      connection.stop();
-    };
   }, [connection]);
 
   return (
-    <SignalRContext.Provider
-      value={{ connection: connection, isConnected, connectionId }}
-    >
+    <SignalRContext.Provider value={{ connection: connection, connectionId: connection.connectionId }}>
       {children}
     </SignalRContext.Provider>
   );

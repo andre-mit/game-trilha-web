@@ -11,6 +11,8 @@ type StateProps = {
   pendingPlacePieces: Record<ColorEnum, number>;
   timer: number;
   pieces: PieceProps[];
+  opponentLeave: boolean;
+  results?: "win" | "lose" | "draw";
 };
 
 type ActionProps =
@@ -49,6 +51,16 @@ type ActionProps =
   | {
       type: "toggleSelectPiece";
       payload: PlaceProps;
+    }
+  | {
+      type: "setResults";
+      payload: "win" | "lose" | "draw";
+    }
+  | {
+      type: "opponentLeave";
+    }
+  | {
+      type: "opponentJoin";
     };
 
 export default function useGame(color: ColorEnum) {
@@ -190,9 +202,7 @@ export default function useGame(color: ColorEnum) {
     // verify column
     pieces = totalPieces.filter(
       (p) =>
-        p.place.track === track &&
-        p.place.column === column &&
-        p.color != color
+        p.place.track === track && p.place.column === column && p.color != color
     );
     if (pieces.length === 3) {
       return true;
@@ -202,7 +212,7 @@ export default function useGame(color: ColorEnum) {
   };
 
   const reducer = (state: StateProps, action: ActionProps): StateProps => {
-    let playType: "place" | "move" | "remove" = "place"
+    let playType: "place" | "move" | "remove" = "place";
     switch (action.type) {
       case "placeStage":
         playType = "place";
@@ -211,21 +221,21 @@ export default function useGame(color: ColorEnum) {
           action.payload.pendingPieces,
           state.pieces
         );
-        
+
         return { ...state, playType, ...placeStageResult };
       case "moveStage":
         const turn = action.payload;
         playType = "move";
         const timer = 15;
         const freePlaces = [] as PlaceProps[];
-        
+
         return { ...state, turn, playType, timer, freePlaces };
       case "removeStage":
         if (action.payload != color) return state;
 
         playType = "remove";
         const availableRemove = getAvailableRemovePieces(state.pieces);
-        
+
         const piecesHighlight = state.pieces.map((p) => {
           return {
             ...p,
@@ -242,7 +252,7 @@ export default function useGame(color: ColorEnum) {
         };
       case "makePlace":
         const makePlaceResult = makePlace(action.payload);
-        
+
         return {
           ...state,
           pendingPlacePieces: makePlaceResult.pendingPlacePieces,
@@ -253,9 +263,9 @@ export default function useGame(color: ColorEnum) {
 
         var index = newPieces.findIndex(
           (p) =>
-            p.place.track === action.payload.from.track &&
-            p.place.line === action.payload.from.line &&
-            p.place.column === action.payload.from.column
+            p.place.track == action.payload.from.track &&
+            p.place.line == action.payload.from.line &&
+            p.place.column == action.payload.from.column
         );
 
         newPieces[index].place = {
@@ -286,11 +296,20 @@ export default function useGame(color: ColorEnum) {
           state.selectedPiece?.line === line &&
           state.selectedPiece?.track === track
             ? null
-            : state.pieces.find(p => p.color == color && p.place.track == track && p.place.column == column && p.place.line == line)?.place ?? null;
+            : state.pieces.find(
+                (p) =>
+                  p.color == color &&
+                  p.place.track == track &&
+                  p.place.column == column &&
+                  p.place.line == line
+              )?.place ?? null;
 
         let freeP = [] as PlaceProps[];
         if (!!selectedPiece) {
-          const places = state.pieces.filter(p => p.color == color).length > 3 ? getPlaces(track, line, column) : getAllBoardPlaces();
+          const places =
+            state.pieces.filter((p) => p.color == color).length > 3
+              ? getPlaces(track, line, column)
+              : getAllBoardPlaces();
 
           places.forEach((place) => {
             let piece = state.pieces.find(
@@ -309,6 +328,12 @@ export default function useGame(color: ColorEnum) {
         }
 
         return { ...state, selectedPiece, freePlaces: freeP };
+      case "setResults":
+        return { ...state, results: action.payload };
+      case "opponentLeave":
+        return { ...state, opponentLeave: true };
+      case "opponentJoin":
+        return { ...state, opponentLeave: false };
       default:
         return state;
     }
@@ -322,6 +347,8 @@ export default function useGame(color: ColorEnum) {
     pendingPlacePieces: { [ColorEnum.Black]: 9, [ColorEnum.White]: 9 },
     timer: 15,
     pieces: [],
+    opponentLeave: false,
+    results: undefined,
   };
 
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -369,6 +396,18 @@ export default function useGame(color: ColorEnum) {
     dispatch({ type: "makeRemove", payload: { track, line, column } });
   };
 
+  const setResults = (results: "win" | "lose" | "draw") => {
+    dispatch({ type: "setResults", payload: results });
+  };
+
+  const handleOpponentLeave = () => {
+    dispatch({ type: "opponentLeave" });
+  };
+
+  const handleOpponentJoin = () => {
+    dispatch({ type: "opponentJoin" });
+  };
+
   return {
     timer: state.timer,
     turn: state.turn,
@@ -377,6 +416,8 @@ export default function useGame(color: ColorEnum) {
     playType: state.playType,
     pendingPlacePieces: state.pendingPlacePieces,
     pieces: state.pieces,
+    results: state.results,
+    opponentLeave: state.opponentLeave,
 
     handlePlaceStage,
     handleMoveStage,
@@ -385,5 +426,8 @@ export default function useGame(color: ColorEnum) {
     handleToggleSelectPiece,
     handleMoinho,
     handleMakeRemove,
+    setResults,
+    handleOpponentLeave,
+    handleOpponentJoin,
   };
 }

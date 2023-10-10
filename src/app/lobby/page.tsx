@@ -1,5 +1,5 @@
 "use client";
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSignalR } from "@/context/signalR/signalRContext";
 import Room from "./components/Room/";
@@ -8,16 +8,24 @@ import ColorEnum from "@/enums/colorEnum";
 type RoomType = {
   name: string;
   players: string[];
-  started: boolean;
+  state: RoomState;
 };
 
+enum RoomState {
+  Waiting = 0,
+  Playing = 1,
+  Finished = 2,
+}
+
 export default function LobbyPage() {
-  const {connection: signalR, connectionId: signalRId} = useSignalR()!;
+  const { connection: signalR, connectionId: signalRId } = useSignalR()!;
   const router = useRouter();
 
   const [rooms, setRooms] = useState<RoomType[]>([] as RoomType[]);
   const [moinho, setMoinho] = useState(false);
-  const joinedAnyRoom = rooms.some((room) => room.players.includes(signalRId ?? ''));
+  const joinedAnyRoom = rooms.some((room) =>
+    room.players.includes(signalRId ?? "")
+  );
 
   useEffect(() => {
     signalR.on("PlayerJoined", (gameId: string, connectionId: string) => {
@@ -26,7 +34,9 @@ export default function LobbyPage() {
           room.name === gameId
             ? {
                 ...room,
-                joined: room.players.includes(signalRId ?? '') || connectionId === signalRId,
+                joined:
+                  room.players.includes(signalRId ?? "") ||
+                  connectionId === signalRId,
                 players: room.players.concat(connectionId),
               }
             : { ...room }
@@ -40,7 +50,9 @@ export default function LobbyPage() {
           room.name === gameId
             ? {
                 ...room,
-                joined: room.players.includes(signalRId ?? '') && connectionId !== signalRId,
+                joined:
+                  room.players.includes(signalRId ?? "") &&
+                  connectionId !== signalRId,
                 players: room.players.filter(
                   (player) => player !== connectionId
                 ),
@@ -56,7 +68,7 @@ export default function LobbyPage() {
           room.name === gameId
             ? {
                 ...room,
-                started: true,
+                state: RoomState.Playing,
               }
             : { ...room }
         )
@@ -65,14 +77,57 @@ export default function LobbyPage() {
       router.push(`/game/${gameId}?color=${color}`);
     });
 
+    signalR.on("GameFinished", (gameId: string) => {
+      setRooms((rooms) =>
+        rooms.map((room) =>
+          room.name === gameId
+            ? {
+                ...room,
+                state: RoomState.Finished,
+                players: [],
+              }
+            : { ...room }
+        )
+      );
+    });
+
+    signalR.on("LobbyStarted", (gameId: string) => {
+      setRooms((rooms) =>
+        rooms.map((room) =>
+          room.name === gameId
+            ? {
+                ...room,
+                state: RoomState.Playing,
+              }
+            : { ...room }
+        )
+      );
+    });
+
+    signalR.on("LobbyReset", (gameId: string) => {
+      setRooms((rooms) =>
+        rooms.map((room) =>
+          room.name === gameId
+            ? {
+                ...room,
+                state: RoomState.Waiting,
+                players: [],
+              }
+            : { ...room }
+        )
+      );
+    });
+
     listRooms();
 
     return () => {
       signalR.off("PlayerJoined");
       signalR.off("PlayerLeft");
       signalR.off("StartGame");
+      signalR.off("GameFinished");
+      signalR.off("LobbyReset");
     };
-  }, [signalR, router]);
+  }, [signalR, router, signalRId]);
 
   const listRooms = async () => {
     const response = await fetch(
@@ -98,19 +153,30 @@ export default function LobbyPage() {
     signalR.invoke("Ready", gameId, moinho);
   };
 
+  const getStateText = (state: RoomType["state"]) => {
+    switch (state) {
+      case RoomState.Waiting:
+        return "Aguardando";
+      case RoomState.Playing:
+        return "Em progresso";
+      case RoomState.Finished:
+        return "Finalizado";
+    }
+  };
+
   return (
     <>
       <main className="rooms flex max-w-[1100px] mx-auto my-8 gap-8 flex-shrink flex-wrap">
-        {rooms.map(({ name, players, started }) => {
-          const disabled = started || players.length === 2;
-          const joined = players.includes(signalR.connectionId ?? '');
+        {rooms.map(({ name, players, state }) => {
+          const disabled = state != RoomState.Waiting || players.length === 2;
+          const joined = players.includes(signalR.connectionId ?? "");
           return (
             <Room.Root key={name}>
               <h3>Room {name}</h3>
 
               <Room.RoomContent>
                 <span>{players.length}/2</span>
-                <span>{started ? "Em progresso" : "Aguardando"}</span>
+                <span>{getStateText(state)}</span>
               </Room.RoomContent>
 
               {!joined ? (
@@ -121,7 +187,11 @@ export default function LobbyPage() {
                       action="join"
                       disabled={disabled}
                     >
-                      Join
+                      {players.length === 2
+                        ? "Lotada"
+                        : disabled
+                        ? "Finalizando"
+                        : "Entrar"}
                     </Room.RoomButton>
                   </Room.RoomActions>
                 )

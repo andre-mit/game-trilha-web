@@ -1,5 +1,6 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+
 import Board from "../../components/board/board";
 import Piece, { PlaceProps } from "@/app/components/board/piece";
 import ColorEnum from "@/enums/colorEnum";
@@ -7,6 +8,9 @@ import { useSignalR } from "@/context/signalR/signalRContext";
 import Audio from "@/app/components/audio";
 import useGame from "./useGame";
 import PlayerPendingPieces from "@/app/components/board/playerPendingPieces";
+import Modal from "@/app/components/modal";
+import MatchModalContent from "./components/MatchModalContent";
+import { useRouter } from "next/navigation";
 
 export default function Game({
   params,
@@ -24,6 +28,9 @@ export default function Game({
     selectedPiece,
     timer,
     turn,
+    results,
+    opponentLeave,
+
     handleMakeMove,
     handleMakePlace,
     handleMoveStage,
@@ -31,7 +38,12 @@ export default function Game({
     handleToggleSelectPiece,
     handleMakeRemove,
     handleMoinho,
+    setResults,
+    handleOpponentLeave,
+    handleOpponentJoin,
   } = useGame(myColor);
+
+  const router = useRouter();
 
   const myTurn = turn == myColor;
   const pendingMyPlacePieces = Object.values(pendingPlacePieces)[myColor];
@@ -52,7 +64,7 @@ export default function Game({
   }, []);
 
   useEffect(() => {
-    if(!socketConnection) return;
+    if (!socketConnection) return;
     socketConnection.on("PlaceStage", handlePlaceStage);
 
     socketConnection.on("MoveStage", handleMoveStage);
@@ -88,12 +100,19 @@ export default function Game({
     });
 
     socketConnection.on("Win", () => {
-      alert("Você venceu!");
+      setResults("win");
     });
 
     socketConnection.on("Lose", () => {
-      alert("Você perdeu!");
+      setResults("lose");
     });
+
+    socketConnection.on("Draw", () => {
+      setResults("draw");
+    });
+
+    socketConnection.on("OpponentLeave", handleOpponentLeave);
+
     socketConnection.invoke("Loaded", params.id);
 
     return () => {
@@ -102,11 +121,13 @@ export default function Game({
       socketConnection.off("Remove");
       socketConnection.off("Win");
       socketConnection.off("Lose");
+      socketConnection.off("Draw");
       socketConnection.off("Moinho");
       socketConnection.off("MoveStage");
       socketConnection.off("PlaceStage");
+      socketConnection.off("OpponentLeave");
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [socketConnection]);
 
   const handlePlay = (to: PlaceProps) => {
@@ -142,8 +163,13 @@ export default function Game({
   const handleRemove = async (place: PlaceProps) => {
     const { column, line, track } = place;
     const data = [track, line, column];
-    
+
     await socketConnection.invoke("Remove", params.id, data);
+  };
+
+  const handleExit = async () => {
+    await socketConnection.invoke("Leave", params.id);
+    router.push("/lobby");
   };
 
   return (
@@ -197,15 +223,11 @@ export default function Game({
             pieceColor={myColor == ColorEnum.White ? "black" : "white"}
           />
         )}
-        {/* {!!pendingPlacePieces[myColor == 0 ? 1 : 0] && (
-          <div className="opponent-pending">
-            <span>
-              Peças inimigas para colocar:{" "}
-              {pendingPlacePieces[myColor == 0 ? 1 : 0]}
-            </span>
-          </div>
-        )} */}
       </main>
+
+      <Modal isOpen={!!results} handleClose={handleExit}>
+        <MatchModalContent handleClose={handleExit} showRematch={!opponentLeave} type={results} />
+      </Modal>
     </div>
   );
 }
