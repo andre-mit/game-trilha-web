@@ -1,4 +1,3 @@
-import { Dispatch, SetStateAction } from "react";
 import Modal from "@/app/components/modal";
 import { Player } from "@lottiefiles/react-lottie-player";
 

@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 import Board from "../../components/board/board";
 import Piece, { PlaceProps } from "@/app/components/board/piece";

@@ -1,5 +1,4 @@
 import Modal from "@/app/components/modal";
-import { Dispatch, SetStateAction } from "react";
 import { FaHandshake } from "react-icons/fa";
 import DrawModalContent from "./DrawModalContent";
 import LoseModalContent from "./LoseModalContent";
