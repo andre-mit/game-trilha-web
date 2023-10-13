@@ -63,11 +63,11 @@ export default function MatchModalContent({
         <button className="bg-red-700 py-2 px-4 rounded" onClick={handleClose}>
           Sair
         </button>
-        {showRematch && (
+        {/* //temporary removal// {showRematch && (
           <button className="bg-blue-700 hover:bg-blue-900 text-white font-bold py-2 px-4 rounded flex gap-2 items-center justify-center">
             Revanche <FaHandshake />
           </button>
-        )}
+        )} */}
       </Modal.Footer>
     </>
   );
