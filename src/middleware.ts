@@ -5,7 +5,6 @@ export default function middleware(request: NextRequest) {
 
   const signInURL = new URL("/login", request.url);
 
-  console.log(request.nextUrl.pathname);
   if (!token) {
     if (request.nextUrl.pathname === "/login") {
       return NextResponse.next();
