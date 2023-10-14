@@ -1,16 +1,14 @@
-"use client"
-import Cookie from 'js-cookie'
-import{useRouter} from 'next/navigation'
-import { FormEvent } from 'react'
+"use client";
+import Cookie from "js-cookie";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
-    const router = useRouter()
-    
-    function handleLogin(){
-        Cookie.set("auth_token", "aisodnaoisndauisndbiausbnda")
-        router.push("/")
-        console.log(Cookie.get('auth_token'))
-    }
+  const router = useRouter();
+
+  function handleLogin() {
+    Cookie.set("auth_token", "aisodnaoisndauisndbiausbnda");
+    router.push("/");
+  }
 
   return (
     <>
@@ -68,7 +66,8 @@ export default function Home() {
             </div>
 
             <div>
-              <button onClick={handleLogin}
+              <button
+                onClick={handleLogin}
                 className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
               >
                 Sign in

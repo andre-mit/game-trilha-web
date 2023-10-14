@@ -1,4 +1,4 @@
-import { HubConnection, HubConnectionBuilder } from "@microsoft/signalr";
+import { HubConnectionBuilder } from "@microsoft/signalr";
 
 const createHubConnection = (hubUrl: string) => {
   return new HubConnectionBuilder()
