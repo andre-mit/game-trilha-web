@@ -1,24 +1,22 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, FormEvent } from "react";
 import Cookie from "js-cookie";
 import { useRouter } from "next/navigation";
-import { FormEvent } from "react";
 
-const LoginUsuario: React.FC = () => {
+const Login = () => {
   const [nome, setNome] = useState("");
-  const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
 
     // Aqui você pode adicionar a lógica para enviar os dados do usuário para o servidor ou fazer qualquer outra coisa necessária.
 
     console.log("Dados do usuário cadastrado:", {
       nome,
-      email,
       senha,
     });
+    handleLogin();
   };
 
   const router = useRouter();
@@ -59,7 +57,6 @@ const LoginUsuario: React.FC = () => {
             />
           </div>
           <button
-            onClick={handleLogin}
             type="submit"
             className="w-full bg-purple-600 text-white py-2 rounded-md hover:bg-purple-400"
           >
@@ -74,4 +71,4 @@ const LoginUsuario: React.FC = () => {
   );
 };
 
-export default LoginUsuario;
+export default Login;
