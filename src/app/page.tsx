@@ -1,25 +1,18 @@
-"use client"
-import {
-  GiTakeMyMoney,
-  GiCrown,
-  GiQueenCrown,
-  GiExitDoor,
-} from "react-icons/gi";
+"use client";
+import { GiTakeMyMoney, GiCrown, GiExitDoor } from "react-icons/gi";
 import Button, { ButtonLink } from "@/app/components/button";
 import Link from "next/link";
-import Cookie from 'js-cookie'
-import{useRouter} from 'next/navigation'
-
+import Cookie from "js-cookie";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
-  const router = useRouter()
+  const router = useRouter();
 
-  function handleLogout(){
-    Cookie.remove('auth_token')
-    router.push("/login")
-
+  function handleLogout() {
+    Cookie.remove("auth_token");
+    router.push("/login");
   }
-  const male = true;
+
   return (
     <div className="wrapper flex flex-col justify-between h-screen">
       <header className="flex justify-between pt-4 pl-4 pr-4">
@@ -33,25 +26,20 @@ export default function Home() {
         </div>
         <div className="rank">
           <Link href="ranking">
-            {male ? (
-              <GiCrown className="w-24 h-24 fill-yellow-300 hover:fill-yellow-500 transition-colors" />
-            ) : (
-              <GiQueenCrown className="w-20 h-20 fill-yellow-300 hover:fill-yellow-500 transition-colors" />
-            )}
+            <GiCrown className="w-24 h-24 fill-yellow-300 hover:fill-yellow-500 transition-colors" />
           </Link>
         </div>
       </header>
       <main className="flex flex-wrap gap-6 max-w-[500px] place-self-center items-center justify-center">
-        <ButtonLink size="md" href="/game">
+        <ButtonLink size="md" href="/lobby">
           Jogar
         </ButtonLink>
-        <Button size="md">
-          Loja
-        </Button>
+        <Button size="md">Loja</Button>
         <Button size="md">Inventário</Button>
       </main>
       <footer className="self-center flex items-center p-4 text-white">
-        <Button onClick={handleLogout}
+        <Button
+          onClick={handleLogout}
           size="default"
           className="gap-3 text-2xl bg-red-600 hover:bg-red-800"
           title="sair"
