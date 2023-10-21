@@ -17,7 +17,10 @@ export default function Home() {
     <div className="wrapper flex flex-col justify-between h-screen">
       <header className="flex justify-between pt-4 pl-4 pr-4">
         <div className="money h-4 w-4 flex-no-shrink fill-current">
-          <button className="flex flex-col items-center justify-center gap-1">
+          <button
+            onClick={() => router.push("money")}
+            className="flex flex-col items-center justify-center gap-1"
+          >
             <GiTakeMyMoney className="w-24 h-24 fill-green-500 dark:fill-green-400 drop-shadow-xl shadow-slate-800 dark:drop-shadow-md dark:shadow-white" />
             <span className="text-white drop-shadow-xl shadow-white dark:drop-shadow-md dark:shadow-white font-semibold text-md bg-green-500 dark:bg-green-400 rounded-full px-3 py-1 min-w-full">
               300 +
