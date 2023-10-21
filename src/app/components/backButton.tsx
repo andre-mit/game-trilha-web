@@ -18,8 +18,8 @@ const BackButton: React.FC = () => {
       onClick={backPreviewsPage}
     >
       <div className="flex flex-col items-center justify-center gap-1">
-        <span className="ml-2 dark:bg-white rounded-md px-3 py-1 min-w flex items-center">
-          <GiReturnArrow className="w-20 h-20 fill-black" />
+        <span className="ml-2 bg-white dark:bg-white rounded-md px-3 py-1 min-w flex items-center">
+          <GiReturnArrow className="w-24 h-24 fill-black" />
         </span>
       </div>
     </button>
