@@ -12,7 +12,7 @@ import {
 import Cookie from "js-cookie";
 
 type SignalRContextType = {
-  connection: HubConnection | null;
+  connection: HubConnection;
   connectionId: string | null | undefined;
 };
 
