@@ -28,7 +28,7 @@ export default function LobbyPage() {
   );
 
   useEffect(() => {
-    signalR.on("PlayerJoined", (gameId: string, connectionId: string) => {
+    signalR?.on("PlayerJoined", (gameId: string, connectionId: string) => {
       setRooms((rooms) =>
         rooms.map((room) =>
           room.name === gameId
@@ -44,7 +44,7 @@ export default function LobbyPage() {
       );
     });
 
-    signalR.on("PlayerLeft", (gameId: string, connectionId: string) => {
+    signalR?.on("PlayerLeft", (gameId: string, connectionId: string) => {
       setRooms((rooms) =>
         rooms.map((room) =>
           room.name === gameId
@@ -62,7 +62,7 @@ export default function LobbyPage() {
       );
     });
 
-    signalR.on("StartGame", (gameId: string, color: ColorEnum) => {
+    signalR?.on("StartGame", (gameId: string, color: ColorEnum) => {
       setRooms((rooms) =>
         rooms.map((room) =>
           room.name === gameId
@@ -77,7 +77,7 @@ export default function LobbyPage() {
       router.push(`/game/${gameId}?color=${color}`);
     });
 
-    signalR.on("GameFinished", (gameId: string) => {
+    signalR?.on("GameFinished", (gameId: string) => {
       setRooms((rooms) =>
         rooms.map((room) =>
           room.name === gameId
@@ -91,7 +91,7 @@ export default function LobbyPage() {
       );
     });
 
-    signalR.on("LobbyStarted", (gameId: string) => {
+    signalR?.on("LobbyStarted", (gameId: string) => {
       setRooms((rooms) =>
         rooms.map((room) =>
           room.name === gameId
@@ -104,7 +104,7 @@ export default function LobbyPage() {
       );
     });
 
-    signalR.on("LobbyReset", (gameId: string) => {
+    signalR?.on("LobbyReset", (gameId: string) => {
       setRooms((rooms) =>
         rooms.map((room) =>
           room.name === gameId
@@ -121,11 +121,11 @@ export default function LobbyPage() {
     listRooms();
 
     return () => {
-      signalR.off("PlayerJoined");
-      signalR.off("PlayerLeft");
-      signalR.off("StartGame");
-      signalR.off("GameFinished");
-      signalR.off("LobbyReset");
+      signalR?.off("PlayerJoined");
+      signalR?.off("PlayerLeft");
+      signalR?.off("StartGame");
+      signalR?.off("GameFinished");
+      signalR?.off("LobbyReset");
     };
   }, [signalR, router, signalRId]);
 
@@ -142,15 +142,15 @@ export default function LobbyPage() {
   };
 
   const join = (gameId: string) => {
-    signalR.invoke("Join", gameId);
+    signalR?.invoke("Join", gameId);
   };
 
   const leave = (gameId: string) => {
-    signalR.invoke("Leave", gameId);
+    signalR?.invoke("Leave", gameId);
   };
 
   const ready = (gameId: string, moinho: boolean) => {
-    signalR.invoke("Ready", gameId, moinho);
+    signalR?.invoke("Ready", gameId, moinho);
   };
 
   const getStateText = (state: RoomType["state"]) => {
@@ -169,7 +169,7 @@ export default function LobbyPage() {
       <main className="rooms flex max-w-[1100px] mx-auto my-8 gap-8 flex-shrink flex-wrap">
         {rooms.map(({ name, players, state }) => {
           const disabled = state != RoomState.Waiting || players.length === 2;
-          const joined = players.includes(signalR.connectionId ?? "");
+          const joined = players.includes(signalR?.connectionId ?? "");
           return (
             <Room.Root key={name}>
               <h3>Room {name}</h3>

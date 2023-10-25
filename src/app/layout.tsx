@@ -2,6 +2,7 @@ import { SignalRProvider } from "@/context/signalR/signalRContext";
 import "./globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { UserProvider } from "@/context/userContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,7 +19,7 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <body className={`${inter.className} min-h-screen`}>
-        <SignalRProvider connectionUrl={`${process.env.NEXT_PUBLIC_API_URL!}/game`}>{children}</SignalRProvider>
+        <UserProvider>{children}</UserProvider>
       </body>
     </html>
   );

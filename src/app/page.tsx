@@ -4,9 +4,11 @@ import Button, { ButtonLink } from "@/app/components/button";
 import Link from "next/link";
 import Cookie from "js-cookie";
 import { useRouter } from "next/navigation";
+import { useUser } from "@/context/userContext";
 
 export default function Home() {
   const router = useRouter();
+  const {user} = useUser()!;
 
   function handleLogout() {
     Cookie.remove("auth_token");
@@ -23,7 +25,7 @@ export default function Home() {
           >
             <GiTakeMyMoney className="w-24 h-24 fill-green-500 dark:fill-green-400 drop-shadow-xl shadow-slate-800 dark:drop-shadow-md dark:shadow-white" />
             <span className="text-white drop-shadow-xl shadow-white dark:drop-shadow-md dark:shadow-white font-semibold text-md bg-green-500 dark:bg-green-400 rounded-full px-3 py-1 min-w-full">
-              300 +
+              {user?.balance} +
             </span>
           </button>
         </div>
@@ -34,7 +36,7 @@ export default function Home() {
         </div>
       </header>
       <main className="flex flex-wrap gap-6 max-w-[500px] place-self-center items-center justify-center">
-        <ButtonLink size="md" href="/lobby">
+        <ButtonLink size="md" href="/game/lobby">
           Jogar
         </ButtonLink>
         <Button size="md">Loja</Button>

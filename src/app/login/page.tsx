@@ -1,30 +1,29 @@
 "use client";
-import React, { useState, FormEvent } from "react";
+import React, { useState, FormEvent, useCallback } from "react";
 import Cookie from "js-cookie";
 import { useRouter } from "next/navigation";
+import { fetchWrapper } from "@/services/fetchWrapper";
+import { useUser } from "@/context/userContext";
 
 const Login = () => {
-  const [nome, setNome] = useState("");
-  const [senha, setSenha] = useState("");
+  const user = useUser();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-
-    // Aqui você pode adicionar a lógica para enviar os dados do usuário para o servidor ou fazer qualquer outra coisa necessária.
-
-    console.log("Dados do usuário cadastrado:", {
-      nome,
-      senha,
-    });
     handleLogin();
   };
 
   const router = useRouter();
 
-  function handleLogin() {
-    Cookie.set("auth_token", "aisodnaoisndauisndbiausbnda");
-    router.push("/");
-    console.log(Cookie.get("auth_token"));
+  async function handleLogin() {
+    var success = await user?.signIn(email, password);
+    if (success) {
+      router.push("/");
+    } else {
+      alert('Error');
+    }
   }
 
   return (
@@ -34,14 +33,14 @@ const Login = () => {
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label className="block text-black text-sm font-medium mb-2">
-              Username
+              Email
             </label>
             <input
-              type="text"
+              type="email"
               className="w-full p-2 border text-white bg-purple-600 rounded-md"
-              placeholder="Digite seu username"
-              value={nome}
-              onChange={(e) => setNome(e.target.value)}
+              placeholder="Digite seu email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
             />
           </div>
           <div className="mb-4">
@@ -52,8 +51,8 @@ const Login = () => {
               type="password"
               className="w-full p-2 border text-white bg-purple-600 rounded-md"
               placeholder="Digite sua senha"
-              value={senha}
-              onChange={(e) => setSenha(e.target.value)}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
             />
           </div>
           <button
