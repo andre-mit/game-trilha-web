@@ -1,8 +1,9 @@
 "use client"
 import { useState } from 'react';
 import { PayPalScriptProvider, PayPalButtons, FUNDING } from '@paypal/react-paypal-js';
+import type { CreateOrderData, CreateOrderActions, OrderResponseBody, OnApproveActions, OnApproveData } from "@paypal/paypal-js";
 
-const PaymentButton = (productPrice: number) => {
+const PaymentButton = (ammountValue: string) => {
   const [cancelled, setCancelled] = useState(false);
   const [orderDetails, setOrderDetails] = useState(null);
   const [loading, setLoading] = useState("");
@@ -10,11 +11,11 @@ const PaymentButton = (productPrice: number) => {
   const createOrder = (data: CreateOrderData, actions: CreateOrderActions) => {
     return actions.order
       .create({
+
         purchase_units: [
           {
             amount: {
-              currency: "BRL",
-              value: productPrice
+              value: ammountValue
             }
           }
         ]
@@ -24,12 +25,12 @@ const PaymentButton = (productPrice: number) => {
       });
   };
 
-  const onApprove = (data: OnApproveData, actions: OnApproveActions) => {
+  const onApprove = async (data: OnApproveData, actions: OnApproveActions) => {
     setLoading('Processando Pagamento');
 
-    actions.order.get().then((orderDetails: any) => {
+    actions.order!.get().then((orderDetails: OrderResponseBody) => {
 
-      actions.order.capture().then((data: any) => {
+      actions.order!.capture().then((data: any) => {
         setOrderDetails(data);
         setLoading("");
       });
@@ -51,7 +52,7 @@ const PaymentButton = (productPrice: number) => {
 
         <PayPalScriptProvider
           options = {{
-            "clientId": process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID,
+            "clientId": process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID!,
             "currency": "BRL",
             "buyerCountry": "BR"
 
