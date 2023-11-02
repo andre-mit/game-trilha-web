@@ -1,7 +1,7 @@
 "use client";
 import { useEffect } from "react";
 
-import Board from "../../components/board/board";
+import Board from "@/app/components/board/board";
 import Piece, { PlaceProps } from "@/app/components/board/piece";
 import ColorEnum from "@/enums/colorEnum";
 import { useSignalR } from "@/context/signalR/signalRContext";

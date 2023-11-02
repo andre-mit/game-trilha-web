@@ -1,5 +1,5 @@
 import { GiCrown } from "react-icons/gi";
-import BackButton from "../components/backButton";
+import BackButton from "@/app/components/backButton";
 
 export default function Home() {
   const male = true;
