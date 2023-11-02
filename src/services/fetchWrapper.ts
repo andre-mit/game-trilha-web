@@ -2,16 +2,29 @@ type FetchWrapperProps<T> =
   | {
       success: true;
       data: T;
+      statusCode: number;
+    }
+  | {
+      success: true;
+      data: string;
+      statusCode: number;
+    }
+  | {
+      success: true;
+      data: null;
+      statusCode: number;
     }
   | {
       success: false;
       data: string;
+      statusCode: number;
     };
 
 export async function fetchWrapper<T>(
   input: RequestInfo | URL,
   init?: RequestInit | undefined,
-  token?: string | null
+  token?: string | null,
+  responseType: "json" | "text" | null = "json"
 ): Promise<FetchWrapperProps<T>> {
   const headers: HeadersInit = {
     "Content-Type": "application/json",
@@ -37,10 +50,19 @@ export async function fetchWrapper<T>(
     return {
       success: false,
       data: "Something went wrong",
+      statusCode: response.status,
     };
   }
 
-  const data = (await response.json()) as T;
-  console.log(data);
-  return { success: true, data };
+  var data;
+  switch (responseType) {
+    case "json":
+      data = (await response.json()) as T;
+      return { success: true, data, statusCode: response.status };
+    case "text":
+      data = await response.text();
+      return { success: true, data, statusCode: response.status };
+    default:
+      return { success: true, data: null, statusCode: response.status };
+  }
 }

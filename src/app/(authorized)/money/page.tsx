@@ -1,5 +1,6 @@
-import BackButton from "../components/backButton";
-import Item, { MoneyType } from "../components/store/item";
+import BalanceLink from "@/app/components/BalanceLink";
+import BackButton from "@/app/components/backButton";
+import Item, { MoneyType } from "@/app/components/store/item";
 
 export default function Money() {
   const moneyItems: MoneyType[] = [
@@ -31,23 +32,21 @@ export default function Money() {
 
   return (
     <>
-      <div className="flex ">
+      <header className="flex items-center">
         <div className="flex-none justify-start">
           <BackButton />
         </div>
         <div className="flex-auto w-50 ">
           <h1 className="ttext-black drop-shadow-xl shadow-white dark:drop-shadow-md dark:shadow-white font-semibold text-4xl  rounded-md px-3 py-2 text-center">
-            {" "}
-            Comprar Moedas{" "}
+            Compras
           </h1>
         </div>
-        <div className="flex-none bg-white rounded-2xl m-3 p-3 justify-center items-center">
+        <div className="flex-none rounded-2xl m-3 p-3 justify-center items-center">
           <h2 className="dark:text-black">
-            {" "}
-            Você possui: <br /> XXX moedas{" "}
+            <BalanceLink />
           </h2>
         </div>
-      </div>
+      </header>
       <div className="flex justify-center items-center h-[100vh] ">
         <main className="flex flex-wrap gap-12 justify-center place-self-center">
           {moneyItems.map((item) => (

@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import ItemsContainer from "../components/items/ItemsContainer";
+import ItemsContainer from "@/app/components/items/ItemsContainer";
 
 interface Item {
   nome: string;
