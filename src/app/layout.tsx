@@ -1,7 +1,6 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import { UserProvider } from "@/context/userContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,7 +17,7 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <body className={`${inter.className} min-h-screen`}>
-        <UserProvider>{children}</UserProvider>
+        {children}
       </body>
     </html>
   );
