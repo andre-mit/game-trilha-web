@@ -20,7 +20,7 @@ type FetchWrapperProps<T> =
       statusCode: number;
     };
 
-export async function fetchWrapper<T>(
+export async function fetchWrapper<T, ErrorType = unknown>(
   input: RequestInfo | URL,
   init?: RequestInit | undefined,
   token?: string | null,
@@ -49,7 +49,7 @@ export async function fetchWrapper<T>(
   if (!response.ok) {
     return {
       success: false,
-      data: "Something went wrong",
+      data: await response.text(),
       statusCode: response.status,
     };
   }

@@ -1,17 +1,28 @@
 "use client";
 import React from "react";
 
-import { useForm } from "react-hook-form";
+import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { createUser } from "@/app/actions/create-user";
+import { toast } from "@/components/ui/use-toast";
+import { useRouter } from "next/navigation";
+
 import Link from "next/link";
+import FormButton from "@/components/ui/FormButton";
 
 const schema = z
   .object({
-    name: z.string().min(3, "O nome deve ter no mínimo 3 caracteres").max(100, "O nome deve ter no máximo 100 caracteres").nonempty("O nome é obrigatório"),
-    email: z.string().email("Digite um email válido").nonempty("O email é obrigatório"),
-    password: z.string().min(6, "A senha deve ter no mínimo 6 caracteres").max(50, "A senha deve ter no máximo 50 caracteres").nonempty("A senha é obrigatória"),
-    confirmPassword: z.string().nonempty("A confirmação de senha é obrigatória"),
+    name: z
+      .string()
+      .min(3, "O nome deve ter no mínimo 3 caracteres")
+      .max(100, "O nome deve ter no máximo 100 caracteres"),
+    email: z.string().email("Digite um email válido"),
+    password: z
+      .string()
+      .min(6, "A senha deve ter no mínimo 6 caracteres")
+      .max(50, "A senha deve ter no máximo 50 caracteres"),
+    confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "As senhas não coincidem",
@@ -20,14 +31,14 @@ const schema = z
 
 type FormProps = z.infer<typeof schema>;
 
-const CadastroUsuario: React.FC = () => {
+const UserRegister = () => {
   const {
     handleSubmit,
     register,
-    formState: { errors },
+    formState: { errors, isLoading, isValid },
   } = useForm<FormProps>({
     criteriaMode: "all",
-    mode: "onBlur",
+    mode: "onChange",
     resolver: zodResolver(schema),
     defaultValues: {
       name: "",
@@ -37,12 +48,25 @@ const CadastroUsuario: React.FC = () => {
     },
   });
 
-  const handleFormSubmit = (data: FormProps) => {
-    console.log(data);
+  const router = useRouter();
+
+  const handleFormSubmit: SubmitHandler<FormProps> = async (data) => {
+    const { user, error } = await createUser(data);
+
+    if (user) {
+      toast({ title: "Usuário cadastrado com sucesso", variant: "success" });
+      router.push("/login");
+    } else {
+      toast({ title: error, variant: "error" });
+    }
   };
 
+  async function handle(formData: FormData) {
+    console.log(formData);
+  }
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-purple-300">
+    <div className="min-h-screen flex items-center justify-center">
       <div className="bg-white p-8 rounded shadow-md w-96 flex flex-col">
         <h2 className="text-2xl font-semibold text-purple-600 mb-4">
           Cadastro de Usuário
@@ -60,6 +84,7 @@ const CadastroUsuario: React.FC = () => {
               type="text"
               className="w-full p-2 border text-white bg-purple-600 rounded-md"
               placeholder="Digite seu nome"
+              required
             />
             {errors.name?.message && (
               <span className="text-red-500 text-sm">
@@ -77,6 +102,7 @@ const CadastroUsuario: React.FC = () => {
             <input
               {...register("email")}
               type="email"
+              required
               className="w-full p-2 border text-white bg-purple-600 rounded-md"
               placeholder="Digite seu email"
             />
@@ -96,6 +122,7 @@ const CadastroUsuario: React.FC = () => {
             <input
               {...register("password")}
               type="password"
+              required
               className="w-full p-2 border text-white bg-purple-600 rounded-md"
               placeholder="Digite sua senha"
             />
@@ -115,6 +142,7 @@ const CadastroUsuario: React.FC = () => {
             <input
               {...register("confirmPassword")}
               type="password"
+              required
               className="w-full p-2 border text-white bg-purple-600 rounded-md"
               placeholder="Confirme sua senha"
             />
@@ -124,12 +152,7 @@ const CadastroUsuario: React.FC = () => {
               </span>
             )}
           </div>
-          <button
-            type="submit"
-            className="w-full bg-purple-600 text-white py-2 rounded-md hover:bg-purple-400 transition-colors"
-          >
-            Cadastrar
-          </button>
+          <FormButton disabled={!isValid}>Cadastrar</FormButton>
         </form>
         <Link
           href="/login"
@@ -142,4 +165,4 @@ const CadastroUsuario: React.FC = () => {
   );
 };
 
-export default CadastroUsuario;
+export default UserRegister;
