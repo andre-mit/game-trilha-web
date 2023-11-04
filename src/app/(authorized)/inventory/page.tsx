@@ -2,21 +2,12 @@
 import React from "react";
 import ItemsContainer from "@/app/components/items/ItemsContainer";
 
-interface Item {
-  nome: string;
-  descricao: any;
-}
 
-const InventarioJogador: React.FC = () => {
-  const [money, setMoney] = React.useState(300);
+const InventarioJogador = () => {
   return (
     <ItemsContainer
       page="inventory"
       title="Inventário"
-      money={money} 
-      onUseSkin={(id) => {
-        console.log("Using id: ", id);
-      }}
     />
   );
 };

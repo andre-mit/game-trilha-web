@@ -2,12 +2,7 @@
 import React from "react";
 import ItemsContainer from "@/app/components/items/ItemsContainer";
 
-interface Item {
-  nome: string;
-  descricao: any;
-}
-
-const Loja: React.FC = () => {
+const Loja = () => {
 
   return (
     <ItemsContainer
