@@ -1,6 +1,6 @@
 "use client";
 
-import { login } from "@/app/actions/login";
+import { login } from "@/app/(non-authorized)/login/components/Form.actions";
 import FormButton from "@/components/ui/FormButton";
 import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
@@ -20,7 +20,7 @@ const Form: React.FC = () => {
       toast({
         title: "Falha ao efetuar login",
         description: error as string,
-        variant: "destructive",
+        variant: "error",
       });
     }
   }

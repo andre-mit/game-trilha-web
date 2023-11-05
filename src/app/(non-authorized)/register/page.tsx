@@ -4,7 +4,7 @@ import React from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { createUser } from "@/app/actions/create-user";
+import { createUser } from "@/app/(non-authorized)/register/create-user";
 import { toast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
 
