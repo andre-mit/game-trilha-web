@@ -6,6 +6,9 @@ import { FaHandshake } from "react-icons/fa";
 export default function LoseModalContent() {
   return (
     <Modal.Content>
+      <audio autoPlay>
+        <source src="/sons/derrota/derrota.mp3" type="audio/mp3" />
+      </audio>
       <Player
         autoplay
         loop

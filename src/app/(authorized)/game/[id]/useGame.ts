@@ -1,9 +1,13 @@
-import { useReducer } from "react";
+import { useReducer, useRef } from "react";
 import { PieceProps, PlaceProps } from "@/app/components/board/piece";
 import ColorEnum from "@/enums/colorEnum";
 import { getAllBoardPlaces, getPlaces } from "@/helpers/placesVerification";
 
 type StateProps = {
+  currentAudio: {
+    src: string | undefined;
+    count: number;
+  };
   turn: ColorEnum;
   freePlaces: PlaceProps[];
   selectedPiece: PlaceProps | null;
@@ -231,6 +235,10 @@ export default function useGame(color: ColorEnum) {
 
         return { ...state, turn, playType, timer, freePlaces };
       case "removeStage":
+        const newCurrentAudioRemoveStage = {
+          src: "/sons/retirar_disponivel.mp3",
+          count: state.currentAudio.count + 1,
+        };
         if (action.payload != color) return state;
 
         playType = "remove";
@@ -249,16 +257,26 @@ export default function useGame(color: ColorEnum) {
           playType: playType,
           timer: 15,
           freePlaces: [],
+          currentAudio: newCurrentAudioRemoveStage
         };
       case "makePlace":
+        const newCurrentAudioPlace = {
+          src: "/sons/posicionar.mp3",
+          count: state.currentAudio.count + 1,
+        };
         const makePlaceResult = makePlace(action.payload);
 
         return {
           ...state,
           pendingPlacePieces: makePlaceResult.pendingPlacePieces,
           pieces: [...state.pieces, makePlaceResult.piece],
+          currentAudio: newCurrentAudioPlace 
         };
       case "makeMove":
+        const newCurrentAudioMove = {
+          src: "/sons/movimentacao.mp3",
+          count: state.currentAudio.count + 1,
+        };
         var newPieces = [...state.pieces];
 
         var index = newPieces.findIndex(
@@ -274,8 +292,12 @@ export default function useGame(color: ColorEnum) {
           column: action.payload.to.column,
         };
 
-        return { ...state, pieces: newPieces };
+        return { ...state, pieces: newPieces, currentAudio: newCurrentAudioMove };
       case "makeRemove":
+        const newCurrentAudioRemove = {
+          src: "/sons/retira_peca.mp3",
+          count: state.currentAudio.count + 1,
+        };
         const newPiecesRemoved = state.pieces
           .filter(
             (p) =>
@@ -287,7 +309,7 @@ export default function useGame(color: ColorEnum) {
             return { ...p, highlight: false };
           });
 
-        return { ...state, pieces: newPiecesRemoved };
+        return { ...state, pieces: newPiecesRemoved, currentAudio: newCurrentAudioRemove  };
       case "toggleSelectPiece":
         if (state.turn != color) return state;
         const { column, line, track } = action.payload;
@@ -329,7 +351,7 @@ export default function useGame(color: ColorEnum) {
 
         return { ...state, selectedPiece, freePlaces: freeP };
       case "setResults":
-        return { ...state, results: action.payload };
+        return { ...state, results: action.payload};
       case "opponentLeave":
         return { ...state, opponentLeave: true };
       case "opponentJoin":
@@ -340,6 +362,7 @@ export default function useGame(color: ColorEnum) {
   };
 
   const initialState: StateProps = {
+    currentAudio: { src: undefined, count: 0 },
     turn: ColorEnum.White,
     freePlaces: [],
     selectedPiece: null,
@@ -409,6 +432,7 @@ export default function useGame(color: ColorEnum) {
   };
 
   return {
+    currentAudio: state.currentAudio,
     timer: state.timer,
     turn: state.turn,
     freePlaces: state.freePlaces,
