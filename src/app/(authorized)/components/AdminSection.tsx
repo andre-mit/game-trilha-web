@@ -12,7 +12,7 @@ const AdminSection = () => {
       <ButtonLink size="md" href="/game/lobby">
         Cadastrar Peças
       </ButtonLink>
-      <ButtonLink href="/store" size="md">
+      <ButtonLink href="/admin/board/register" size="md">
         Cadastrar Tabuleiros
       </ButtonLink>
     </section>
