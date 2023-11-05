@@ -1,5 +1,5 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 import Board from "../../components/board/board";
 import Piece, { PlaceProps } from "@/app/components/board/piece";
@@ -19,8 +19,11 @@ export default function Game({
   params: { id: string };
   searchParams: { color: ColorEnum };
 }) {
+  const audioRef = useRef<HTMLAudioElement>(null);
+
   const { connection: socketConnection } = useSignalR()!;
   const {
+    currentAudio,
     freePlaces,
     pieces,
     playType,
@@ -62,6 +65,14 @@ export default function Game({
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
   }, []);
+
+  useEffect(() => {
+    if (audioRef && audioRef.current) {
+      audioRef.current?.pause();
+      audioRef.current?.load();
+      audioRef.current?.play();
+    }
+  }, [currentAudio]);
 
   useEffect(() => {
     if (!socketConnection) return;
@@ -150,7 +161,6 @@ export default function Game({
     const { column, line, track } = selectedPiece!;
     const fromData = [track, line, column];
     const toData = [to.track, to.line, to.column];
-
     await socketConnection.invoke("Move", params.id, fromData, toData);
   };
 
@@ -192,6 +202,7 @@ export default function Game({
         </div>
       </header>
       <main className="flex flex-col sm:flex-col lg:flex-row items-center justify-evenly p-4 gap-2 flex-1">
+        <audio src={currentAudio.src} ref={audioRef} />
         {!!pendingMyPlacePieces && (
           <PlayerPendingPieces
             count={pendingMyPlacePieces}
@@ -226,7 +237,11 @@ export default function Game({
       </main>
 
       <Modal isOpen={!!results} handleClose={handleExit}>
-        <MatchModalContent handleClose={handleExit} showRematch={!opponentLeave} type={results} />
+        <MatchModalContent
+          handleClose={handleExit}
+          showRematch={!opponentLeave}
+          type={results}
+        />
       </Modal>
     </div>
   );
