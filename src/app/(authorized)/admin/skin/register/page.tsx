@@ -1,16 +1,11 @@
 "use client";
-
 import { ChangeEvent, useEffect, useRef, useState } from "react";
-import registerBoard from "./page.actions";
-import Board from "./components/board";
+import registerSkin from "./page.actions";
 import { toast } from "@/components/ui/use-toast";
+import Piece from "./components/piece";
 import Link from "next/link";
 
-const Register = () => {
-  const [lineColor, setLineColor] = useState("#ffffff");
-  const [borderLineColor, setBorderLineColor] = useState("#ffffff");
-  const [bulletColor, setBulletColor] = useState("#ffffff");
-
+const RegisterSkin = () => {
   const [selectedImage, setSelectedImage] = useState<File | undefined>(
     undefined
   );
@@ -55,7 +50,8 @@ const Register = () => {
   }
 
   async function handleRegister(formData: FormData) {
-    const { success, error } = await registerBoard(formData);
+    const { success, error } = await registerSkin(formData);
+
     if (success) {
       toast({
         title: "Tabuleiro adicionado com sucesso",
@@ -79,7 +75,7 @@ const Register = () => {
     <div className="min-h-screen flex items-center justify-center">
       <div className="bg-white p-8 rounded shadow-md w-96 flex flex-col">
         <h2 className="text-2xl font-semibold text-purple-600 mb-4">
-          Cadastro de Tabuleiros
+          Cadastro de Skin de Peça
         </h2>
         <form
           ref={formRef}
@@ -127,9 +123,9 @@ const Register = () => {
             </label>
             <input
               type="file"
-              required
               accept="image/*"
               name="backgroundImage"
+              required
               className="w-full p-2 border text-white bg-purple-600 rounded-md"
               placeholder="Anexe a imagem"
               onChange={onSelectFile}
@@ -137,39 +133,7 @@ const Register = () => {
             <input type="hidden" name="image" value={image} />
           </div>
 
-          <div className="flex flex-col items-center justify-between">
-            <label htmlFor="bullet" className="text-black">
-              Pontos: {bulletColor}
-            </label>
-            <input
-              type="color"
-              name="bulletColor"
-              className="text-black border-1"
-              value={bulletColor}
-              onChange={(e) => setBulletColor(e.target.value)}
-            />
-
-            <label htmlFor="lineColor" className="text-black">
-              Linha: {lineColor}
-            </label>
-            <input
-              type="color"
-              name="lineColor"
-              className="text-black border-1"
-              value={lineColor}
-              onChange={(e) => setLineColor(e.target.value)}
-            />
-            <label htmlFor="borderLineColor" className="text-black">
-              Borda: {borderLineColor}
-            </label>
-            <input
-              type="color"
-              name="borderLineColor"
-              className="text-black border-1"
-              value={borderLineColor}
-              onChange={(e) => setBorderLineColor(e.target.value)}
-            />
-          </div>
+          <Piece backgroundImage={preview} />
 
           <button
             type="submit"
@@ -185,14 +149,8 @@ const Register = () => {
           Cancelar
         </Link>
       </div>
-      <Board
-        bulletColors={bulletColor}
-        lineColor={lineColor}
-        borderLineColor={borderLineColor}
-        backgroundImage={preview}
-      />
     </div>
   );
 };
 
-export default Register;
+export default RegisterSkin;
