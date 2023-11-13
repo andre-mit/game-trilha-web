@@ -9,7 +9,7 @@ const AdminSection = () => {
 
   return isAdmin ? (
     <section className="admin flex gap-6 max-w-[500px] items-center justify-center">
-      <ButtonLink size="md" href="/game/lobby">
+      <ButtonLink size="md" href="/admin/skin/register">
         Cadastrar Peças
       </ButtonLink>
       <ButtonLink href="/admin/board/register" size="md">
