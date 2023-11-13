@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useSignalR } from "@/context/signalR/signalRContext";
 import Room from "./components/Room/";
 import ColorEnum from "@/enums/colorEnum";
+import { useUser } from "@/hooks/useUser";
 
 type RoomType = {
   name: string;
@@ -19,42 +20,44 @@ enum RoomState {
 
 export default function LobbyPage() {
   const { connection: signalR, connectionId: signalRId } = useSignalR()!;
+  const user = useUser.getState();
   const router = useRouter();
 
   const [rooms, setRooms] = useState<RoomType[]>([] as RoomType[]);
   const [moinho, setMoinho] = useState(false);
   const joinedAnyRoom = rooms.some((room) =>
-    room.players.includes(signalRId ?? "")
+    room.players.includes(user.id)
   );
 
+
   useEffect(() => {
-    signalR?.on("PlayerJoined", (gameId: string, connectionId: string) => {
+    signalR?.on("PlayerJoined", (gameId: string, joinedPlayerId: string) => {
       setRooms((rooms) =>
         rooms.map((room) =>
           room.name === gameId
             ? {
                 ...room,
                 joined:
-                  room.players.includes(signalRId ?? "") ||
-                  connectionId === signalRId,
-                players: room.players.concat(connectionId),
+                  room.players.includes(user.id) ||
+                  joinedPlayerId === user.id,
+                players: room.players.concat(joinedPlayerId),
               }
             : { ...room }
         )
       );
     });
 
-    signalR?.on("PlayerLeft", (gameId: string, connectionId: string) => {
+    signalR?.on("PlayerLeft", (gameId: string, leftPlayerId: string) => {
       setRooms((rooms) =>
         rooms.map((room) =>
           room.name === gameId
             ? {
                 ...room,
                 joined:
-                  room.players.includes(signalRId ?? "") &&
-                  connectionId !== signalRId,
+                  room.players.includes(user.id) &&
+                  leftPlayerId !== user.id,
                 players: room.players.filter(
-                  (player) => player !== connectionId
+                  (player) => player !== leftPlayerId
                 ),
               }
             : { ...room }
@@ -169,7 +172,7 @@ export default function LobbyPage() {
       <main className="rooms flex max-w-[1100px] mx-auto my-8 gap-8 flex-shrink flex-wrap">
         {rooms.map(({ name, players, state }) => {
           const disabled = state != RoomState.Waiting || players.length === 2;
-          const joined = players.includes(signalR?.connectionId ?? "");
+          const joined = players.includes(user.id);
           return (
             <Room.Root key={name}>
               <h3>Room {name}</h3>
