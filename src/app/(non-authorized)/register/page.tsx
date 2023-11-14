@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import { useState } from "react";
 
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 
 import Link from "next/link";
 import FormButton from "@/components/ui/FormButton";
+import Avatar, { genConfig } from "react-nice-avatar";
 
 const schema = z
   .object({
@@ -48,10 +49,14 @@ const UserRegister = () => {
     },
   });
 
+  const [name, setName] = useState("");
+
+  const avatarConfig = genConfig(name);
+
   const router = useRouter();
 
   const handleFormSubmit: SubmitHandler<FormProps> = async (data) => {
-    const { user, error } = await createUser(data);
+    const { user, error } = await createUser({ ...data, avatar: avatarConfig });
 
     if (user) {
       toast({ title: "Usuário cadastrado com sucesso", variant: "success" });
@@ -61,16 +66,16 @@ const UserRegister = () => {
     }
   };
 
-  async function handle(formData: FormData) {
-    console.log(formData);
-  }
-
   return (
     <div className="min-h-screen flex items-center justify-center">
-      <div className="bg-white p-8 rounded shadow-md w-96 flex flex-col">
+      <div className="bg-white p-8 rounded shadow-md w-96 flex flex-col gap-4">
         <h2 className="text-2xl font-semibold text-purple-600 mb-4">
           Cadastro de Usuário
         </h2>
+        <div className="avatar-area self-center flex flex-col items-center gap-2">
+          <Avatar className="w-32 h-32" {...avatarConfig} />
+          <span className="text-black text-sm underline">Será possivel alterar o avatar após o cadastro</span>
+        </div>
         <form onSubmit={handleSubmit(handleFormSubmit)}>
           <div className="mb-4">
             <label
@@ -81,6 +86,8 @@ const UserRegister = () => {
             </label>
             <input
               {...register("name")}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
               type="text"
               className="w-full p-2 border text-white bg-purple-600 rounded-md"
               placeholder="Digite seu nome"
@@ -152,7 +159,7 @@ const UserRegister = () => {
               </span>
             )}
           </div>
-          <FormButton disabled={!isValid}>Cadastrar</FormButton>
+          <FormButton disabled={!isValid || isLoading}>Cadastrar</FormButton>
         </form>
         <Link
           href="/login"

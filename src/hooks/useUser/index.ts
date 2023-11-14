@@ -1,12 +1,5 @@
+import { UserType } from "@/@types/user";
 import { create } from "zustand";
-
-export type UserType = {
-  id: string;
-  name: string;
-  email: string;
-  balance: number;
-  roles: string[];
-};
 
 export const useUser = create<UserType>((set) => ({
   id: "",
@@ -14,4 +7,5 @@ export const useUser = create<UserType>((set) => ({
   email: "",
   balance: 0,
   roles: [],
+  profile: null
 }));
