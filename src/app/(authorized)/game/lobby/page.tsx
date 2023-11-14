@@ -10,6 +10,9 @@ import { useUser } from "@/hooks/useUser";
 import { Profile } from "@/@types/profile";
 import { Switch } from "@/components/ui/switch";
 import truncateText from "@/helpers/truncateText";
+import BackButton from "@/app/components/backButton";
+import Link from "next/link";
+import { GiCrown } from "react-icons/gi";
 
 type RoomType = {
   name: string;
@@ -204,11 +207,17 @@ export default function LobbyPage() {
 
   return (
     <>
-      <main className="rooms flex max-w-[1100px] mx-auto my-8 gap-8 flex-shrink flex-wrap">
+      <header className="flex justify-between items-center p-4">
+        <BackButton />
+        <h1 className="text-4xl font-bold">Lobby</h1>
+        <Link href="/ranking">
+          <GiCrown className="w-24 h-24 fill-yellow-300 hover:fill-yellow-500 transition-colors" />
+        </Link>
+      </header>
+      <main className="rooms flex lg:max-w-[1100px] max-w-[600px] mx-auto my-8 gap-8 flex-shrink flex-wrap">
         {rooms.map(({ name, players, state }) => {
           const disabled = state != RoomState.Waiting || players.length === 2;
           const joined = !!players.find((x) => x.id === user.id);
-          console.log(players);
           const stateColor =
             state == RoomState.Waiting
               ? "waiting"
@@ -216,7 +225,11 @@ export default function LobbyPage() {
               ? "running"
               : "ready";
           return (
-            <Room.Root color={stateColor} key={name} className="w-[500px] h-[250px] rounded-xl">
+            <Room.Root
+              color={stateColor}
+              key={name}
+              className="w-[500px] h-[250px] rounded-xl"
+            >
               <header className="flex justify-between">
                 <h3 className="">Sala {name}</h3>
                 <span>{getStateText(state)}</span>
@@ -236,6 +249,7 @@ export default function LobbyPage() {
                         </label>
                         <Switch
                           id={`moinho-duplo-${name}-${player.id}`}
+                          color="indigo"
                           checked={player.moinho}
                           onCheckedChange={(checked: boolean) => {
                             toggleMoinho(name, checked);

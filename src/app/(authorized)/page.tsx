@@ -12,7 +12,7 @@ export default function Home() {
       <header className="flex justify-between pt-4 pl-4 pr-4">
         <BalanceLink />
         <div className="rank">
-          <Link href="ranking">
+          <Link href="/ranking">
             <GiCrown className="w-24 h-24 fill-yellow-300 hover:fill-yellow-500 transition-colors" />
           </Link>
         </div>
