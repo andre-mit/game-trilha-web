@@ -1,7 +1,8 @@
 "use client";
 
 import { useRef } from "react";
-import { UserType, useUser } from "@/hooks/useUser";
+import { useUser } from "@/hooks/useUser";
+import { UserType } from "@/@types/user";
 
 export default function UserInitializer({ user }: { user: UserType }) {
   const initialized = useRef(false);

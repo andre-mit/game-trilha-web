@@ -2,7 +2,6 @@ import { GiCrown } from "react-icons/gi";
 import BackButton from "@/app/components/backButton";
 
 export default function Home() {
-  const male = true;
   const tabelaDados = [
     { lugar: 1, players: "Player 1", score: 100 },
     { lugar: 2, players: "Player 2", score: 90 },

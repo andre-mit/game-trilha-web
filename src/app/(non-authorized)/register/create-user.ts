@@ -1,5 +1,5 @@
 "use server";
-import { UserType } from "@/hooks/useUser";
+import { UserType } from "@/@types/user";
 import { fetchWrapper } from "@/services/fetchWrapper";
 import { AvatarFullConfig } from "react-nice-avatar";
 

@@ -47,10 +47,8 @@ export default function Money() {
   function handleSelectItem(id: number) {
     if (selectedItemId === id) {
       setSelectedItemId(null);
-      console.log("Deselecionado", id);
     } else {
       setSelectedItemId(id);
-      console.log("Selecionado", id);
     }
   }
 
