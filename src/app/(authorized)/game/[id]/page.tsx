@@ -7,6 +7,7 @@ import ColorEnum from "@/enums/colorEnum";
 import { useSignalR } from "@/context/signalR/signalRContext";
 import Audio from "@/app/components/audio";
 import useGame from "./useGame";
+import useTurnTimer from "./useTurnTimer";
 import PlayerPendingPieces from "@/app/components/board/playerPendingPieces";
 import Modal from "@/app/components/modal";
 import MatchModalContent from "./components/MatchModalContent";
@@ -52,6 +53,15 @@ export default function Game({
   const pendingMyPlacePieces = Object.values(pendingPlacePieces)[myColor];
   const pendingOpponentPlacePieces =
     Object.values(pendingPlacePieces)[myColor == 0 ? 1 : 0];
+  
+    const { secondsRemaining, start, reset } = useTurnTimer(15);
+
+  //I'm not entirely sure it'll be needed, but just in case I implement a turnCountdown treatment, I will leave this one here
+
+  //useEffect(() => {
+    //if (secondsRemaining == 0) {
+    //}
+  //}, [secondsRemaining]);
 
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
@@ -78,7 +88,11 @@ export default function Game({
     if (!socketConnection) return;
     socketConnection.on("PlaceStage", handlePlaceStage);
 
-    socketConnection.on("MoveStage", handleMoveStage);
+    socketConnection.on("MoveStage", () => {
+      reset();
+      start();
+      handleMoveStage; 
+    });
 
     socketConnection.on("Moinho", handleMoinho);
 
@@ -194,7 +208,7 @@ export default function Game({
                 : "bg-red-600 dark:bg-red-500"
             }`}
           >
-            {timer} segs
+            {secondsRemaining} segs
           </span>
         </div>
         <div className="turn">
