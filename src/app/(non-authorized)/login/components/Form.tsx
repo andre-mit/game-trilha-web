@@ -3,6 +3,7 @@
 import { login } from "@/app/(non-authorized)/login/components/Form.actions";
 import FormButton from "@/components/ui/FormButton";
 import { useToast } from "@/components/ui/use-toast";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 const Form: React.FC = () => {
@@ -27,7 +28,7 @@ const Form: React.FC = () => {
 
   const { toast } = useToast();
   return (
-    <form action={handleLogin}>
+    <form action={handleLogin} className="flex flex-col w-full">
       <div className="mb-4">
         <label className="block text-black text-sm font-medium mb-2">
           Email
@@ -41,7 +42,7 @@ const Form: React.FC = () => {
       </div>
       <div className="mb-4">
         <label className="block text-black text-sm font-medium mb-2">
-          Password
+          Senha
         </label>
         <input
           type="password"
@@ -50,6 +51,9 @@ const Form: React.FC = () => {
           placeholder="Digite sua senha"
         />
       </div>
+      <Link href="/recovery-password" className="text-black underline mb-2 hover:opacity-50 hover:transition-opacity">
+        Esqueci minha senha
+      </Link>
       <FormButton>Entrar</FormButton>
     </form>
   );

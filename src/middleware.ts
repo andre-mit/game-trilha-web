@@ -6,7 +6,8 @@ export default function middleware(request: NextRequest) {
   if (!token) {
     if (
       request.nextUrl.pathname === "/login" ||
-      request.nextUrl.pathname === "/register"
+      request.nextUrl.pathname === "/register" ||
+      request.nextUrl.pathname === "/recovery-password"
     ) {
       return NextResponse.next();
     }
@@ -14,7 +15,8 @@ export default function middleware(request: NextRequest) {
     return NextResponse.redirect(signInURL);
   } else if (
     request.nextUrl.pathname === "/login" ||
-    request.nextUrl.pathname === "/register"
+    request.nextUrl.pathname === "/register" ||
+    request.nextUrl.pathname === "/recovery-password"
   ) {
     const homeURL = new URL("/", request.url);
     return NextResponse.redirect(homeURL);
