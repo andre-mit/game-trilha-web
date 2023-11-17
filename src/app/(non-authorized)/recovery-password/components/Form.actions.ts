@@ -58,7 +58,9 @@ export const requestRecovery = async <T = unknown>(
     if (result.success) {
       return { success: result.success, data: null };
     } else {
-      return { success: result.success, error: result.data };
+      if (result.statusCode === 403)
+        return { success: result.success, error: "Código inválido" };
+      else return { success: result.success, error: result.data };
     }
   } catch (e) {
     return {
