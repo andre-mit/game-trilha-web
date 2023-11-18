@@ -11,14 +11,10 @@ import PlayerPendingPieces from "@/app/components/board/playerPendingPieces";
 import Modal from "@/app/components/modal";
 import MatchModalContent from "./components/MatchModalContent";
 import { useRouter } from "next/navigation";
+import { fetchWrapper } from "@/services/fetchWrapper";
+import Cookies from "js-cookie";
 
-export default function Game({
-  params,
-  searchParams: { color: myColor },
-}: {
-  params: { id: string };
-  searchParams: { color: ColorEnum };
-}) {
+export default function Game() {
   const audioRef = useRef<HTMLAudioElement>(null);
 
   const { connection: socketConnection } = useSignalR()!;
@@ -33,6 +29,8 @@ export default function Game({
     turn,
     results,
     opponentLeave,
+    myColor,
+    gameId,
 
     handleMakeMove,
     handleMakePlace,
@@ -44,14 +42,17 @@ export default function Game({
     setResults,
     handleOpponentLeave,
     handleOpponentJoin,
-  } = useGame(myColor);
+  } = useGame();
 
   const router = useRouter();
 
   const myTurn = turn == myColor;
-  const pendingMyPlacePieces = Object.values(pendingPlacePieces)[myColor];
-  const pendingOpponentPlacePieces =
-    Object.values(pendingPlacePieces)[myColor == 0 ? 1 : 0];
+  const pendingMyPlacePieces = Object.values(pendingPlacePieces ?? [])[
+    myColor ?? 0
+  ];
+  const pendingOpponentPlacePieces = Object.values(pendingPlacePieces ?? [])[
+    myColor == 0 ? 1 : 0
+  ];
 
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
@@ -124,8 +125,6 @@ export default function Game({
 
     socketConnection.on("OpponentLeave", handleOpponentLeave);
 
-    socketConnection.invoke("Loaded", params.id);
-
     return () => {
       socketConnection.off("Move");
       socketConnection.off("Place");
@@ -161,24 +160,24 @@ export default function Game({
     const { column, line, track } = selectedPiece!;
     const fromData = [track, line, column];
     const toData = [to.track, to.line, to.column];
-    await socketConnection.invoke("Move", params.id, fromData, toData);
+    await socketConnection.invoke("Move", gameId, fromData, toData);
   };
 
   const handlePlace = async (to: PlaceProps) => {
     const { column, line, track } = to;
     const data = [track, line, column];
-    await socketConnection.invoke("Place", params.id, data);
+    await socketConnection.invoke("Place", gameId, data);
   };
 
   const handleRemove = async (place: PlaceProps) => {
     const { column, line, track } = place;
     const data = [track, line, column];
 
-    await socketConnection.invoke("Remove", params.id, data);
+    await socketConnection.invoke("Remove", gameId, data);
   };
 
   const handleExit = async () => {
-    await socketConnection.invoke("Leave", params.id);
+    await socketConnection.invoke("Leave", gameId);
     router.push("/lobby");
   };
 

@@ -99,19 +99,9 @@ export default function LobbyPage() {
       }
     );
 
-    signalR?.on("StartGame", (gameId: string, color: ColorEnum) => {
-      setRooms((rooms) =>
-        rooms.map((room) =>
-          room.name === gameId
-            ? {
-                ...room,
-                state: RoomState.Playing,
-              }
-            : { ...room }
-        )
-      );
-
-      router.push(`/game/${gameId}?color=${color}`);
+    signalR?.on("StartMatch", () => {
+      console.log("start game")
+      router.push(`/game/1`);
     });
 
     signalR?.on("GameFinished", (gameId: string) => {

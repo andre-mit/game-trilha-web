@@ -1,7 +1,9 @@
-import { useReducer, useRef } from "react";
+import { useEffect, useReducer } from "react";
+import Cookies from "js-cookie";
 import { PieceProps, PlaceProps } from "@/app/components/board/piece";
 import ColorEnum from "@/enums/colorEnum";
 import { getAllBoardPlaces, getPlaces } from "@/helpers/placesVerification";
+import { fetchWrapper } from "@/services/fetchWrapper";
 
 type StateProps = {
   currentAudio: {
@@ -17,6 +19,8 @@ type StateProps = {
   pieces: PieceProps[];
   opponentLeave: boolean;
   results?: "win" | "lose" | "draw";
+  color: ColorEnum;
+  gameId: string;
 };
 
 type ActionProps =
@@ -65,9 +69,57 @@ type ActionProps =
     }
   | {
       type: "opponentJoin";
+    }
+  | {
+      type: "setGameId";
+      payload: string;
+    }
+  | {
+      type: "setColor";
+      payload: ColorEnum;
+    }
+  | {
+      type: "setTimer";
+      payload: number;
+    }
+  | {
+      type: "setPieces";
+      payload: PieceProps[];
+    }
+  | {
+      type: "setPendingPlacePieces";
+      payload: Record<ColorEnum, number>;
     };
 
-export default function useGame(color: ColorEnum) {
+export default function useGame() {
+  useEffect(() => {
+    const loadBoard = async () => {
+      const token = Cookies.get("auth_token");
+      const response = await fetchWrapper<any, string>(
+        `games`,
+        { method: "GET" },
+        token,
+        "json"
+      );
+
+      console.log(response);
+
+      dispatch({ type: "setGameId", payload: response.data.gameId });
+      dispatch({ type: "setColor", payload: response.data.playerColor });
+      dispatch({ type: "setPieces", payload: response.data.board });
+      dispatch({
+        type: "setPendingPlacePieces",
+        payload: response.data.pendingPlacePieces,
+      });
+      dispatch({
+        type: "setPendingPlacePieces",
+        payload: response.data.pendingPieces,
+      });
+    };
+
+    loadBoard();
+  }, []);
+
   const makePlace = ({
     pieceId,
     place,
@@ -101,7 +153,7 @@ export default function useGame(color: ColorEnum) {
     pieces: PieceProps[] = []
   ) => {
     let freePlaces;
-    if (turn == color) {
+    if (turn == state.color) {
       freePlaces = getFreePlaces(pieces);
     } else {
       freePlaces = [] as PlaceProps[];
@@ -136,7 +188,7 @@ export default function useGame(color: ColorEnum) {
   }
 
   const getAvailableRemovePieces = (totalPieces: PieceProps[]) => {
-    var opponentPieces = totalPieces.filter((p) => p.color != color);
+    var opponentPieces = totalPieces.filter((p) => p.color != state.color);
     if (opponentPieces.length <= 3) return opponentPieces.map((p) => p.id);
     // verify moinho
     let pieces = opponentPieces.map((p) => {
@@ -179,7 +231,9 @@ export default function useGame(color: ColorEnum) {
     ) {
       const pieces = totalPieces.filter(
         (p) =>
-          p.place.line === line && p.place.column === column && p.color != color
+          p.place.line === line &&
+          p.place.column === column &&
+          p.color != state.color
       );
       if (pieces.length === 3) {
         return true;
@@ -197,7 +251,9 @@ export default function useGame(color: ColorEnum) {
     // verify line
     let pieces = totalPieces.filter(
       (p) =>
-        p.place.track === track && p.place.line === line && p.color != color
+        p.place.track === track &&
+        p.place.line === line &&
+        p.color != state.color
     );
     if (pieces.length === 3) {
       return true;
@@ -206,7 +262,9 @@ export default function useGame(color: ColorEnum) {
     // verify column
     pieces = totalPieces.filter(
       (p) =>
-        p.place.track === track && p.place.column === column && p.color != color
+        p.place.track === track &&
+        p.place.column === column &&
+        p.color != state.color
     );
     if (pieces.length === 3) {
       return true;
@@ -239,7 +297,7 @@ export default function useGame(color: ColorEnum) {
           src: "/sons/retirar_disponivel.mp3",
           count: state.currentAudio.count + 1,
         };
-        if (action.payload != color) return state;
+        if (action.payload != state.color) return state;
 
         playType = "remove";
         const availableRemove = getAvailableRemovePieces(state.pieces);
@@ -257,7 +315,7 @@ export default function useGame(color: ColorEnum) {
           playType: playType,
           timer: 15,
           freePlaces: [],
-          currentAudio: newCurrentAudioRemoveStage
+          currentAudio: newCurrentAudioRemoveStage,
         };
       case "makePlace":
         const newCurrentAudioPlace = {
@@ -270,7 +328,7 @@ export default function useGame(color: ColorEnum) {
           ...state,
           pendingPlacePieces: makePlaceResult.pendingPlacePieces,
           pieces: [...state.pieces, makePlaceResult.piece],
-          currentAudio: newCurrentAudioPlace 
+          currentAudio: newCurrentAudioPlace,
         };
       case "makeMove":
         const newCurrentAudioMove = {
@@ -292,7 +350,11 @@ export default function useGame(color: ColorEnum) {
           column: action.payload.to.column,
         };
 
-        return { ...state, pieces: newPieces, currentAudio: newCurrentAudioMove };
+        return {
+          ...state,
+          pieces: newPieces,
+          currentAudio: newCurrentAudioMove,
+        };
       case "makeRemove":
         const newCurrentAudioRemove = {
           src: "/sons/retira_peca.mp3",
@@ -309,9 +371,13 @@ export default function useGame(color: ColorEnum) {
             return { ...p, highlight: false };
           });
 
-        return { ...state, pieces: newPiecesRemoved, currentAudio: newCurrentAudioRemove  };
+        return {
+          ...state,
+          pieces: newPiecesRemoved,
+          currentAudio: newCurrentAudioRemove,
+        };
       case "toggleSelectPiece":
-        if (state.turn != color) return state;
+        if (state.turn != state.color) return state;
         const { column, line, track } = action.payload;
         const selectedPiece =
           state.selectedPiece?.column === column &&
@@ -320,7 +386,7 @@ export default function useGame(color: ColorEnum) {
             ? null
             : state.pieces.find(
                 (p) =>
-                  p.color == color &&
+                  p.color == state.color &&
                   p.place.track == track &&
                   p.place.column == column &&
                   p.place.line == line
@@ -329,7 +395,7 @@ export default function useGame(color: ColorEnum) {
         let freeP = [] as PlaceProps[];
         if (!!selectedPiece) {
           const places =
-            state.pieces.filter((p) => p.color == color).length > 3
+            state.pieces.filter((p) => p.color == state.color).length > 3
               ? getPlaces(track, line, column)
               : getAllBoardPlaces();
 
@@ -350,8 +416,18 @@ export default function useGame(color: ColorEnum) {
         }
 
         return { ...state, selectedPiece, freePlaces: freeP };
+      case "setPendingPlacePieces":
+        return { ...state, pendingPlacePieces: action.payload };
+      case "setPieces":
+        return { ...state, pieces: action.payload };
+      case "setColor":
+        return { ...state, color: action.payload };
+      case "setTimer":
+        return { ...state, timer: action.payload };
+      case "setGameId":
+        return { ...state, gameId: action.payload };
       case "setResults":
-        return { ...state, results: action.payload};
+        return { ...state, results: action.payload };
       case "opponentLeave":
         return { ...state, opponentLeave: true };
       case "opponentJoin":
@@ -372,6 +448,8 @@ export default function useGame(color: ColorEnum) {
     pieces: [],
     opponentLeave: false,
     results: undefined,
+    color: ColorEnum.White,
+    gameId: "",
   };
 
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -442,6 +520,8 @@ export default function useGame(color: ColorEnum) {
     pieces: state.pieces,
     results: state.results,
     opponentLeave: state.opponentLeave,
+    myColor: state.color,
+    gameId: state.gameId,
 
     handlePlaceStage,
     handleMoveStage,
