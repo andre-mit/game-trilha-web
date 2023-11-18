@@ -9,11 +9,10 @@ import {
   ReactNode,
   useContext,
 } from "react";
-import Cookie from "js-cookie";
 
 type SignalRContextType = {
   connection: HubConnection;
-  connectionId: string | null | undefined;
+  connectionId: string | null;
 };
 
 export const SignalRContext = createContext<SignalRContextType | null>(null);
@@ -25,30 +24,21 @@ export const SignalRProvider = ({
   children: ReactNode;
   connectionUrl: string;
 }) => {
-  const token = Cookie.get("auth_token");
-  const [connection, setConnection] = useState<HubConnection>(
-    createHubConnection(connectionUrl, token!)
+  const [connection, setConnection] = useState(
+    createHubConnection(connectionUrl)
   );
+  const [connectionId, setConnectionId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (
-      connection.state !== HubConnectionState.Connected &&
-      connection.state !== HubConnectionState.Connecting
-    ) {
+    if (connection.state !== HubConnectionState.Connected && connection.state !== HubConnectionState.Connecting) {
       connection.start().then(() => {
-        console.log("Connected to SignalR");
+        setConnectionId(connection.connectionId);
       });
     }
-
-    return () => {
-      connection.stop();
-    };
   }, [connection]);
 
   return (
-    <SignalRContext.Provider
-      value={{ connection: connection, connectionId: connection?.connectionId }}
-    >
+    <SignalRContext.Provider value={{ connection: connection, connectionId: connection.connectionId }}>
       {children}
     </SignalRContext.Provider>
   );

@@ -1,8 +1,8 @@
 import { HubConnectionBuilder } from "@microsoft/signalr";
 
-const createHubConnection = (hubUrl: string, token: string) => {
+const createHubConnection = (hubUrl: string) => {
   return new HubConnectionBuilder()
-    .withUrl(hubUrl, { accessTokenFactory: () => token })
+    .withUrl(hubUrl)
     .withAutomaticReconnect()
     .build();
 };
