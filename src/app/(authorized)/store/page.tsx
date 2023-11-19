@@ -17,7 +17,7 @@ const Loja = () => {
  useEffect(() => {
    const listStore = async () => {
      const { data } = await fetchWrapper<Inventory>(
-       "Users/inventory", // inserir URL para API de consulta de itens na loja
+       "Users/skinRemaining", // inserir URL para API de consulta de itens na loja
        {
          method: "GET",
          cache: "no-cache",
