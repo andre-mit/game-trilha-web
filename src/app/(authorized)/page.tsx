@@ -4,6 +4,7 @@ import Link from "next/link";
 import BalanceLink from "../components/BalanceLink";
 import LogoutButton from "../components/LogoutButton";
 import AdminSection from "./components/AdminSection";
+import Image from "next/image";
 import UserContainer from "./components/UserContainer";
 
 export default function Home() {
@@ -11,6 +12,18 @@ export default function Home() {
     <div className="wrapper flex flex-col justify-between h-screen">
       <header className="flex justify-between pt-4 pl-4 pr-4">
         <BalanceLink />
+        <div>
+          <div className=" place-self-center text-white">
+            <Image
+              src="/logo.png"
+              alt="imagem do tabuleiro"
+              className="rounded-md"
+              width={200}
+              height={200}
+            />
+          </div>
+        </div>
+
         <div className="rank">
           <Link href="/ranking">
             <GiCrown className="w-24 h-24 fill-yellow-300 hover:fill-yellow-500 transition-colors" />
