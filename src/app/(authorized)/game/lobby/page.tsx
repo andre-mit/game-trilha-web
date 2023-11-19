@@ -100,8 +100,7 @@ export default function LobbyPage() {
     );
 
     signalR?.on("StartMatch", () => {
-      console.log("start game")
-      router.push(`/game/1`);
+      router.push(`/game/play`);
     });
 
     signalR?.on("GameFinished", (gameId: string) => {

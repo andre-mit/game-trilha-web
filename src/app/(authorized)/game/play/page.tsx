@@ -11,8 +11,6 @@ import PlayerPendingPieces from "@/app/components/board/playerPendingPieces";
 import Modal from "@/app/components/modal";
 import MatchModalContent from "./components/MatchModalContent";
 import { useRouter } from "next/navigation";
-import { fetchWrapper } from "@/services/fetchWrapper";
-import Cookies from "js-cookie";
 
 export default function Game() {
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -178,7 +176,7 @@ export default function Game() {
 
   const handleExit = async () => {
     await socketConnection.invoke("Leave", gameId);
-    router.push("/lobby");
+    router.push("/game/lobby");
   };
 
   return (

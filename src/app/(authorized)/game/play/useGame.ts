@@ -4,6 +4,7 @@ import { PieceProps, PlaceProps } from "@/app/components/board/piece";
 import ColorEnum from "@/enums/colorEnum";
 import { getAllBoardPlaces, getPlaces } from "@/helpers/placesVerification";
 import { fetchWrapper } from "@/services/fetchWrapper";
+import { getAvailableRemovePieces, placeStage } from "./useGame.functions";
 
 type StateProps = {
   currentAudio: {
@@ -19,7 +20,7 @@ type StateProps = {
   pieces: PieceProps[];
   opponentLeave: boolean;
   results?: "win" | "lose" | "draw";
-  color: ColorEnum;
+  playerColor: ColorEnum;
   gameId: string;
 };
 
@@ -92,34 +93,6 @@ type ActionProps =
     };
 
 export default function useGame() {
-  useEffect(() => {
-    const loadBoard = async () => {
-      const token = Cookies.get("auth_token");
-      const response = await fetchWrapper<any, string>(
-        `games`,
-        { method: "GET" },
-        token,
-        "json"
-      );
-
-      console.log(response);
-
-      dispatch({ type: "setGameId", payload: response.data.gameId });
-      dispatch({ type: "setColor", payload: response.data.playerColor });
-      dispatch({ type: "setPieces", payload: response.data.board });
-      dispatch({
-        type: "setPendingPlacePieces",
-        payload: response.data.pendingPlacePieces,
-      });
-      dispatch({
-        type: "setPendingPlacePieces",
-        payload: response.data.pendingPieces,
-      });
-    };
-
-    loadBoard();
-  }, []);
-
   const makePlace = ({
     pieceId,
     place,
@@ -147,132 +120,6 @@ export default function useGame() {
     return { pendingPlacePieces: pendingPieces, piece: newPiece };
   };
 
-  const placeStage = (
-    turn: ColorEnum,
-    pendingPlacePieces: Record<ColorEnum, number>,
-    pieces: PieceProps[] = []
-  ) => {
-    let freePlaces;
-    if (turn == state.color) {
-      freePlaces = getFreePlaces(pieces);
-    } else {
-      freePlaces = [] as PlaceProps[];
-    }
-
-    return { turn, pendingPlacePieces, freePlaces };
-  };
-
-  function getFreePlaces(pieces: PieceProps[]): PlaceProps[] {
-    const freePieces = [] as PlaceProps[];
-    for (let track = 0; track < 3; track++) {
-      for (let line = 0; line < 3; line++) {
-        for (let column = 0; column < 3; column++) {
-          if (line === 1 && column === 1) continue;
-          const piece = pieces.find(
-            (p) =>
-              p.place.track === track &&
-              p.place.line === line &&
-              p.place.column === column
-          );
-          if (!piece) {
-            freePieces.push({
-              track: track as 0 | 1 | 2,
-              line: line as 0 | 1 | 2,
-              column: column as 0 | 1 | 2,
-            });
-          }
-        }
-      }
-    }
-    return freePieces;
-  }
-
-  const getAvailableRemovePieces = (totalPieces: PieceProps[]) => {
-    var opponentPieces = totalPieces.filter((p) => p.color != state.color);
-    if (opponentPieces.length <= 3) return opponentPieces.map((p) => p.id);
-    // verify moinho
-    let pieces = opponentPieces.map((p) => {
-      return {
-        ...p,
-        isMoinho:
-          moinhoCrossTrack(totalPieces, p.place.line, p.place.column) ||
-          trackHasMoinhoByPosition(
-            totalPieces,
-            p.place.track,
-            p.place.line,
-            p.place.column
-          ),
-      };
-    });
-
-    if (pieces.some((p) => !p.isMoinho)) {
-      return pieces.filter((p) => !p.isMoinho).map((p) => p.id);
-    }
-
-    return pieces.map((p) => p.id);
-  };
-
-  const positionsMoinhoCrossTrack: { line: 0 | 1 | 2; column: 0 | 1 | 2 }[] = [
-    { line: 0, column: 1 },
-    { line: 1, column: 0 },
-    { line: 2, column: 1 },
-    { line: 1, column: 2 },
-  ];
-
-  function moinhoCrossTrack(
-    totalPieces: PieceProps[],
-    line: 0 | 1 | 2,
-    column: 0 | 1 | 2
-  ) {
-    if (
-      positionsMoinhoCrossTrack.some(
-        (p) => p.line === line && p.column === column
-      )
-    ) {
-      const pieces = totalPieces.filter(
-        (p) =>
-          p.place.line === line &&
-          p.place.column === column &&
-          p.color != state.color
-      );
-      if (pieces.length === 3) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  const trackHasMoinhoByPosition = (
-    totalPieces: PieceProps[],
-    track: 0 | 1 | 2,
-    line: 0 | 1 | 2,
-    column: 0 | 1 | 2
-  ) => {
-    // verify line
-    let pieces = totalPieces.filter(
-      (p) =>
-        p.place.track === track &&
-        p.place.line === line &&
-        p.color != state.color
-    );
-    if (pieces.length === 3) {
-      return true;
-    }
-
-    // verify column
-    pieces = totalPieces.filter(
-      (p) =>
-        p.place.track === track &&
-        p.place.column === column &&
-        p.color != state.color
-    );
-    if (pieces.length === 3) {
-      return true;
-    }
-
-    return false;
-  };
-
   const reducer = (state: StateProps, action: ActionProps): StateProps => {
     let playType: "place" | "move" | "remove" = "place";
     switch (action.type) {
@@ -281,7 +128,8 @@ export default function useGame() {
         const placeStageResult = placeStage(
           action.payload.turn,
           action.payload.pendingPieces,
-          state.pieces
+          state.pieces,
+          state.playerColor
         );
 
         return { ...state, playType, ...placeStageResult };
@@ -297,10 +145,10 @@ export default function useGame() {
           src: "/sons/retirar_disponivel.mp3",
           count: state.currentAudio.count + 1,
         };
-        if (action.payload != state.color) return state;
+        if (action.payload != state.playerColor) return state;
 
         playType = "remove";
-        const availableRemove = getAvailableRemovePieces(state.pieces);
+        const availableRemove = getAvailableRemovePieces(state.pieces, state.playerColor);
 
         const piecesHighlight = state.pieces.map((p) => {
           return {
@@ -377,7 +225,7 @@ export default function useGame() {
           currentAudio: newCurrentAudioRemove,
         };
       case "toggleSelectPiece":
-        if (state.turn != state.color) return state;
+        if (state.turn != state.playerColor) return state;
         const { column, line, track } = action.payload;
         const selectedPiece =
           state.selectedPiece?.column === column &&
@@ -386,7 +234,7 @@ export default function useGame() {
             ? null
             : state.pieces.find(
                 (p) =>
-                  p.color == state.color &&
+                  p.color == state.playerColor &&
                   p.place.track == track &&
                   p.place.column == column &&
                   p.place.line == line
@@ -395,7 +243,7 @@ export default function useGame() {
         let freeP = [] as PlaceProps[];
         if (!!selectedPiece) {
           const places =
-            state.pieces.filter((p) => p.color == state.color).length > 3
+            state.pieces.filter((p) => p.color == state.playerColor).length > 3
               ? getPlaces(track, line, column)
               : getAllBoardPlaces();
 
@@ -419,9 +267,9 @@ export default function useGame() {
       case "setPendingPlacePieces":
         return { ...state, pendingPlacePieces: action.payload };
       case "setPieces":
-        return { ...state, pieces: action.payload };
+        return { ...state, pieces: action.payload ?? [] };
       case "setColor":
-        return { ...state, color: action.payload };
+        return { ...state, playerColor: action.payload };
       case "setTimer":
         return { ...state, timer: action.payload };
       case "setGameId":
@@ -448,11 +296,35 @@ export default function useGame() {
     pieces: [],
     opponentLeave: false,
     results: undefined,
-    color: ColorEnum.White,
+    playerColor: ColorEnum.White,
     gameId: "",
   };
 
   const [state, dispatch] = useReducer(reducer, initialState);
+
+  useEffect(() => {
+    const loadBoard = async () => {
+      const token = Cookies.get("auth_token");
+      const response = await fetchWrapper<any, string>(
+        `games`,
+        { method: "GET" },
+        token,
+        "json"
+      );
+
+      dispatch({ type: "setGameId", payload: response.data.gameId });
+      dispatch({ type: "setColor", payload: response.data.playerColor });
+
+      dispatch({ type: "setPieces", payload: response.data.pieces });
+
+      dispatch({
+        type: "setPendingPlacePieces",
+        payload: response.data.pendingPlacePieces,
+      });
+    };
+
+    loadBoard();
+  }, []);
 
   const handleMoveStage = (turn: ColorEnum) => {
     dispatch({ type: "moveStage", payload: turn });
@@ -520,7 +392,7 @@ export default function useGame() {
     pieces: state.pieces,
     results: state.results,
     opponentLeave: state.opponentLeave,
-    myColor: state.color,
+    myColor: state.playerColor,
     gameId: state.gameId,
 
     handlePlaceStage,
