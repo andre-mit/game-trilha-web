@@ -1,7 +1,8 @@
 import { motion } from "framer-motion";
 import { BoardPositions } from "./boardPositions";
-import { PlaceProps } from "./piece";
+import Piece, { PlaceProps } from "./piece";
 import { Board } from "@/app/(authorized)/game/play/@types/board";
+import ColorEnum from "@/enums/colorEnum";
 
 export const drawEffect = {
   hidden: { pathLength: 0, opacity: 0 },
@@ -29,16 +30,14 @@ export default function Board({
   customBoardProps?: Board;
 }) {
   return (
-    <motion.svg
+    <svg
       className="rounded-lg flex-1 max-h-[350px] max-w-[350px] sm:max-h-[500px] sm:max-w-[500px] md:max-h-[600px] md:max-w-[600px] lg:max-h-[800px] lg:max-w-[800px]"
       viewBox="-15 -15 330 330"
       xmlns="http://www.w3.org/2000/svg"
-      fill={customBoardProps?.bulletColor || "#000"}
-      stroke={customBoardProps?.borderLineColor || "#000"}
+      fill={customBoardProps?.bulletColor || "#fcfcfc"}
+      stroke={customBoardProps?.borderLineColor || "#2f5f6b"}
       style={{
-        backgroundImage: customBoardProps?.imageSrc
-          ? `url('${customBoardProps.imageSrc}')`
-          : "",
+        backgroundImage: `url('${customBoardProps?.imageSrc}')`,
         backgroundSize: "cover",
       }}
     >
@@ -142,6 +141,33 @@ export default function Board({
                   cy={position.position.y}
                   r="10"
                 />
+                {freePlaces.some(
+                  (f) =>
+                    f.track === 0 &&
+                    f.column === position.column &&
+                    f.line === position.line
+                ) && (
+                  <motion.circle
+                    cx={position.position.x}
+                    cy={position.position.y}
+                    r="10"
+                    fill={"transparent"}
+                    initial="hidden"
+                    animate="visible"
+                    stroke="#00962d"
+                    strokeWidth={3}
+                    variants={drawEffect}
+                    custom={3}
+                    className="cursor-pointer"
+                    onClick={() => {
+                      handleMove({
+                        track: 0,
+                        line: position.line,
+                        column: position.column,
+                      });
+                    }}
+                  />
+                )}
               </g>
             );
           })}
@@ -200,6 +226,33 @@ export default function Board({
                   cy={position.position.y}
                   r="10"
                 />
+                {freePlaces.some(
+                  (f) =>
+                    f.track === 1 &&
+                    f.column === position.column &&
+                    f.line === position.line
+                ) && (
+                  <motion.circle
+                    cx={position.position.x}
+                    cy={position.position.y}
+                    r="10"
+                    fill={"transparent"}
+                    initial="hidden"
+                    animate="visible"
+                    stroke="#00962d"
+                    strokeWidth={3}
+                    variants={drawEffect}
+                    custom={3}
+                    className="cursor-pointer"
+                    onClick={() => {
+                      handleMove({
+                        track: 1,
+                        line: position.line,
+                        column: position.column,
+                      });
+                    }}
+                  />
+                )}
               </g>
             );
           })}
@@ -258,12 +311,39 @@ export default function Board({
                   cy={position.position.y}
                   r="10"
                 />
+                {freePlaces.some(
+                  (f) =>
+                    f.track === 2 &&
+                    f.column === position.column &&
+                    f.line === position.line
+                ) && (
+                  <motion.circle
+                    cx={position.position.x}
+                    cy={position.position.y}
+                    r="10"
+                    fill={"transparent"}
+                    initial="hidden"
+                    animate="visible"
+                    stroke="#00962d"
+                    strokeWidth={3}
+                    variants={drawEffect}
+                    custom={3}
+                    className="cursor-pointer"
+                    onClick={() => {
+                      handleMove({
+                        track: 2,
+                        line: position.line,
+                        column: position.column,
+                      });
+                    }}
+                  />
+                )}
               </g>
             );
           })}
         </g>
       </g>
       <g>{children}</g>
-    </motion.svg>
+    </svg>
   );
 }

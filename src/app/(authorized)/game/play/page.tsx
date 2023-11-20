@@ -212,25 +212,35 @@ export default function Game() {
             pieceColor={myColor == ColorEnum.White ? "white" : "black"}
           />
         )}
-        <Board freePlaces={freePlaces ?? []} handleMove={handlePlay} customBoardProps={profile?.board}>
-          <defs>
-            <clipPath id="my-pieces-clip" clipRule="nonzero" clipPath=" ">
-              {pieces.map((piece) => {
-                return (
-                  <Piece
-                    key={piece.id}
-                    id={piece.id}
-                    color={piece.color}
-                    place={piece.place}
-                    highlight={piece.highlight}
-                    onSelect={() => handleToggleSelectPiece(piece.place)}
-                    onRemove={handleRemove}
-                  />
-                );
-              })}
-            </clipPath>
-          </defs>
-          <image href={profile?.pieces} clipPath="" preserveAspectRatio="xMinYMin meet" height={50} width={50}  />
+        <Board
+          freePlaces={freePlaces ?? []}
+          handleMove={handlePlay}
+          customBoardProps={profile?.board}
+        >
+          <filter id="my_skin" x="0%" y="0%" width="100%" height="100%">
+            <feImage xlinkHref={profile?.pieces} />
+          </filter>
+          <filter id="opponent_skin" x="0%" y="0%" width="100%" height="100%">
+            <feImage xlinkHref={opponentProfile?.pieces} />
+          </filter>
+
+          {pieces.map((piece) => {
+            const myPiece = piece.color == myColor;
+            const hasSkin = myPiece ? !!profile?.pieces : !!opponentProfile?.pieces;
+            const skin = hasSkin ? (myPiece ? "my_skin" : "opponent_skin") : undefined;
+            return (
+              <Piece
+                key={piece.id}
+                id={piece.id}
+                color={piece.color}
+                place={piece.place}
+                highlight={piece.highlight}
+                skin={skin}
+                onSelect={() => handleToggleSelectPiece(piece.place)}
+                onRemove={handleRemove}
+              />
+            );
+          })}
         </Board>
         {!!pendingOpponentPlacePieces && opponentProfile && (
           <PlayerPendingPieces
