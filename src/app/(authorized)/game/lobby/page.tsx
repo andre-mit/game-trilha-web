@@ -1,14 +1,29 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Avatar from "react-nice-avatar";
+
 import { useSignalR } from "@/context/signalR/signalRContext";
 import Room from "./components/Room/";
 import ColorEnum from "@/enums/colorEnum";
+import { useUser } from "@/hooks/useUser";
+import { Profile } from "@/@types/profile";
+import { Switch } from "@/components/ui/switch";
+import truncateText from "@/helpers/truncateText";
+import BackButton from "@/app/components/backButton";
+import Link from "next/link";
+import { GiCrown } from "react-icons/gi";
+import { Checkbox } from "@/components/ui/checkbox";
 
 type RoomType = {
   name: string;
-  players: string[];
+  players: ProfileRoomType[];
   state: RoomState;
+};
+
+type ProfileRoomType = Profile & {
+  moinho: boolean;
+  ready: boolean;
 };
 
 enum RoomState {
@@ -19,42 +34,46 @@ enum RoomState {
 
 export default function LobbyPage() {
   const { connection: signalR, connectionId: signalRId } = useSignalR()!;
+  const user = useUser.getState();
   const router = useRouter();
 
   const [rooms, setRooms] = useState<RoomType[]>([] as RoomType[]);
-  const [moinho, setMoinho] = useState(false);
-  const joinedAnyRoom = rooms.some((room) =>
-    room.players.includes(signalRId ?? "")
+  const joinedAnyRoom = rooms.some(
+    (room) => !!room.players.find((x) => x.id === user.id)
   );
 
   useEffect(() => {
-    signalR?.on("PlayerJoined", (gameId: string, connectionId: string) => {
+    signalR?.on("PlayerJoined", (gameId: string, player: Profile) => {
       setRooms((rooms) =>
         rooms.map((room) =>
           room.name === gameId
             ? {
                 ...room,
                 joined:
-                  room.players.includes(signalRId ?? "") ||
-                  connectionId === signalRId,
-                players: room.players.concat(connectionId),
+                  !!room.players.find((x) => x.id === user.id) ||
+                  player.id === user.id,
+                players: room.players.concat({
+                  moinho: false,
+                  ready: false,
+                  ...player,
+                }),
               }
             : { ...room }
         )
       );
     });
 
-    signalR?.on("PlayerLeft", (gameId: string, connectionId: string) => {
+    signalR?.on("PlayerLeft", (gameId: string, leftPlayerId: string) => {
       setRooms((rooms) =>
         rooms.map((room) =>
           room.name === gameId
             ? {
                 ...room,
                 joined:
-                  room.players.includes(signalRId ?? "") &&
-                  connectionId !== signalRId,
+                  !!room.players.find((x) => x.id === user.id) &&
+                  leftPlayerId !== user.id,
                 players: room.players.filter(
-                  (player) => player !== connectionId
+                  (player) => player.id !== leftPlayerId
                 ),
               }
             : { ...room }
@@ -62,19 +81,53 @@ export default function LobbyPage() {
       );
     });
 
-    signalR?.on("StartGame", (gameId: string, color: ColorEnum) => {
+    signalR.on(
+      "ToggleMoinho",
+      (gameId: string, playerId: string, activated: boolean) => {
+        setRooms((rooms) =>
+          rooms.map((room) =>
+            room.name === gameId
+              ? {
+                  ...room,
+                  players: room.players.map((player) => {
+                    if (player.id === playerId) {
+                      return {
+                        ...player,
+                        moinho: activated,
+                      };
+                    }
+                    return player;
+                  }),
+                }
+              : { ...room }
+          )
+        );
+      }
+    );
+
+    signalR?.on("Ready", (gameId: string, playerId: string, ready: boolean) => {
       setRooms((rooms) =>
         rooms.map((room) =>
           room.name === gameId
             ? {
                 ...room,
-                state: RoomState.Playing,
+                players: room.players.map((player) => {
+                  if (player.id === playerId) {
+                    return {
+                      ...player,
+                      ready,
+                    };
+                  }
+                  return player;
+                }),
               }
             : { ...room }
         )
       );
+    });
 
-      router.push(`/game/${gameId}?color=${color}`);
+    signalR?.on("StartMatch", () => {
+      router.push(`/game/play`);
     });
 
     signalR?.on("GameFinished", (gameId: string) => {
@@ -149,8 +202,12 @@ export default function LobbyPage() {
     signalR?.invoke("Leave", gameId);
   };
 
-  const ready = (gameId: string, moinho: boolean) => {
-    signalR?.invoke("Ready", gameId, moinho);
+  const ready = (gameId: string) => {
+    signalR?.invoke("Ready", gameId);
+  };
+
+  const toggleMoinho = (gameId: string, activated: boolean) => {
+    signalR?.invoke("ToggleMoinho", gameId, activated);
   };
 
   const getStateText = (state: RoomType["state"]) => {
@@ -166,17 +223,62 @@ export default function LobbyPage() {
 
   return (
     <>
-      <main className="rooms flex max-w-[1100px] mx-auto my-8 gap-8 flex-shrink flex-wrap">
+      <header className="flex justify-between items-center p-4">
+        <BackButton />
+        <h1 className="text-4xl font-bold">Lobby</h1>
+        <Link href="/ranking">
+          <GiCrown className="w-24 h-24 fill-yellow-300 hover:fill-yellow-500 transition-colors" />
+        </Link>
+      </header>
+      <main className="rooms flex lg:max-w-[1100px] max-w-[600px] mx-auto my-8 gap-8 flex-shrink flex-wrap">
         {rooms.map(({ name, players, state }) => {
           const disabled = state != RoomState.Waiting || players.length === 2;
-          const joined = players.includes(signalR?.connectionId ?? "");
+          const joined = !!players.find((x) => x.id === user.id);
+          const stateColor =
+            state == RoomState.Waiting
+              ? "waiting"
+              : state == RoomState.Playing
+              ? "running"
+              : "ready";
           return (
-            <Room.Root key={name}>
-              <h3>Room {name}</h3>
+            <Room.Root
+              color={stateColor}
+              key={name}
+              className="w-[500px] h-[250px] rounded-xl"
+            >
+              <header className="flex justify-between">
+                <h3 className="">Sala {name}</h3>
+                <span>{getStateText(state)}</span>
+              </header>
 
               <Room.RoomContent>
-                <span>{players.length}/2</span>
-                <span>{getStateText(state)}</span>
+                {players.map((player) => (
+                  <div
+                    key={`${name}_${player.id}`}
+                    className={`flex flex-col gap-2 p-2 rounded-md ${
+                      player.ready && "bg-green-800"
+                    }`}
+                  >
+                    <div className="flex flex-1 justify-between items-center gap-4">
+                      <Avatar className="w-12 h-12" {...player.avatar} />
+                      <div className="flex items-end gap-3">
+                        <label htmlFor={`moinho-duplo-${name}-${player.id}`}>
+                          Moinho duplo
+                        </label>
+                        <Switch
+                          id={`moinho-duplo-${name}-${player.id}`}
+                          color="indigo"
+                          checked={player.moinho}
+                          onCheckedChange={(checked: boolean) => {
+                            toggleMoinho(name, checked);
+                          }}
+                          disabled={player.id != user.id}
+                        />
+                      </div>
+                    </div>
+                    <span>{truncateText(player.name, 25)}</span>
+                  </div>
+                ))}
               </Room.RoomContent>
 
               {!joined ? (
@@ -197,24 +299,22 @@ export default function LobbyPage() {
                 )
               ) : (
                 <div className="flex-1 flex flex-col justify-center">
-                  <label className="flex gap-4">
-                    <span>Moinho</span>
-                    <input
-                      title="moinho"
-                      type="checkbox"
-                      checked={moinho}
-                      onChange={() => setMoinho(!moinho)}
-                    />
-                  </label>
                   <Room.RoomActions>
-                    <Room.RoomButton
-                      onClick={() => ready(name, moinho)}
-                      action="ready"
-                    >
-                      Ready
-                    </Room.RoomButton>
+                    {players.length < 2 || players.some((x) => !x.ready) && (
+                      <Room.RoomButton
+                        onClick={() => ready(name)}
+                        action="ready"
+                      >
+                        Pronto{" "}
+                        <Checkbox
+                          className="ml-2 text-white outline-white border-white accent-white"
+                          color="white"
+                          checked={players.find((x) => x.id == user.id)?.ready}
+                        />
+                      </Room.RoomButton>
+                    )}
                     <Room.RoomButton onClick={() => leave(name)} action="leave">
-                      Leave
+                      Sair
                     </Room.RoomButton>
                   </Room.RoomActions>
                 </div>

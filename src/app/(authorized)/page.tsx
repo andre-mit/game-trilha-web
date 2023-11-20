@@ -1,10 +1,11 @@
 import { GiCrown } from "react-icons/gi";
-import Button, { ButtonLink } from "@/app/components/button";
+import { ButtonLink } from "@/app/components/button";
 import Link from "next/link";
 import BalanceLink from "../components/BalanceLink";
 import LogoutButton from "../components/LogoutButton";
 import AdminSection from "./components/AdminSection";
 import Image from "next/image";
+import UserContainer from "./components/UserContainer";
 
 export default function Home() {
   return (
@@ -24,13 +25,16 @@ export default function Home() {
         </div>
 
         <div className="rank">
-          <Link href="ranking">
+          <Link href="/ranking">
             <GiCrown className="w-24 h-24 fill-yellow-300 hover:fill-yellow-500 transition-colors" />
           </Link>
         </div>
       </header>
       <main className="place-self-center flex flex-col justify-around h-full">
         <AdminSection />
+        <section className="avatar flex flex-wrap gap-6 max-w-[500px] items-center justify-center">
+          <UserContainer suppressHydrationWarning />
+        </section>
         <section className="player flex flex-wrap gap-6 max-w-[500px] items-center justify-center">
           <ButtonLink size="md" href="/game/lobby">
             Jogar

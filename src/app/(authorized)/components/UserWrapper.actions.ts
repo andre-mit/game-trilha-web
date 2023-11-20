@@ -1,9 +1,8 @@
 "use server";
 
-import { UserType } from "@/hooks/useUser";
+import { UserType } from "@/@types/user";
 import { fetchWrapper } from "@/services/fetchWrapper";
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
 
 export const getUser = async () => {
   const token = cookies().get("auth_token")?.value;

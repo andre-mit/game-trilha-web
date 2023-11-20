@@ -1,12 +1,14 @@
 "use server";
-import { UserType } from "@/hooks/useUser";
+import { UserType } from "@/@types/user";
 import { fetchWrapper } from "@/services/fetchWrapper";
+import { AvatarFullConfig } from "react-nice-avatar";
 
 export type CreateUserType = {
   name: string;
   email: string;
   password: string;
   confirmPassword: string;
+  avatar: AvatarFullConfig;
 };
 
 export async function createUser(data: CreateUserType) {

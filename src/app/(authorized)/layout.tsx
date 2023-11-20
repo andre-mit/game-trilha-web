@@ -1,4 +1,5 @@
 import UserWrapper from "./components/UserWrapper";
+import FullScreenButton from "./components/fullScreenButton";
 
 export default async function AuthorizedLayout({
   children,
@@ -8,6 +9,7 @@ export default async function AuthorizedLayout({
   return (
     <>
       <UserWrapper>{children}</UserWrapper>
+      <FullScreenButton />
     </>
   );
 }
