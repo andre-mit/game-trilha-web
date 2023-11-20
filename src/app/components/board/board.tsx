@@ -31,13 +31,18 @@ export default function Board({
 }) {
   return (
     <svg
-      className="rounded-lg flex-1 max-h-[350px] max-w-[350px] sm:max-h-[500px] sm:max-w-[500px] md:max-h-[600px] md:max-w-[600px] lg:max-h-[800px] lg:max-w-[800px]"
+      className={`rounded-lg flex-1 max-h-[350px] max-w-[350px] sm:max-h-[500px] sm:max-w-[500px] md:max-h-[600px] md:max-w-[600px] lg:max-h-[800px] lg:max-w-[800px] ${
+        !customBoardProps?.bulletColor &&
+        "fill-slate-500 stroke-gray-400 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"
+      }`}
       viewBox="-15 -15 330 330"
       xmlns="http://www.w3.org/2000/svg"
-      fill={customBoardProps?.bulletColor || "#fcfcfc"}
-      stroke={customBoardProps?.borderLineColor || "#2f5f6b"}
+      fill={customBoardProps?.bulletColor}
+      stroke={customBoardProps?.borderLineColor}
       style={{
-        backgroundImage: `url('${customBoardProps?.imageSrc}')`,
+        backgroundImage: !!customBoardProps?.imageSrc
+          ? `url('${customBoardProps?.imageSrc}')`
+          : undefined,
         backgroundSize: "cover",
       }}
     >

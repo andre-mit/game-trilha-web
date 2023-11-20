@@ -4,7 +4,7 @@ import { ComponentProps } from "react";
 import { VariantProps, tv } from "tailwind-variants";
 
 const piecesContainer = tv({
-  base: "p-2 gap-3 flex flex-row lg:flex-col xl:grid xl:grid-cols-3 lg:max-w-[100px] xl:max-w-none flex-wrap justify-center items-center",
+  base: "p-2 gap-3 flex flex-row lg:flex-col xl:grid xl:grid-cols-3 lg:max-w-[100px] xl:max-w-none flex-wrap justify-center items-center rounded-md",
   variants: {
     containerType: {
       my: "bg-blue-700",

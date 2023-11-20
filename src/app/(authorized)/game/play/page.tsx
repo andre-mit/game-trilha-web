@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import Board from "@/app/components/board/board";
 import Piece, { PlaceProps } from "@/app/components/board/piece";
@@ -11,11 +11,14 @@ import PlayerPendingPieces from "@/app/components/board/playerPendingPieces";
 import Modal from "@/app/components/modal";
 import MatchModalContent from "./components/MatchModalContent";
 import { useRouter } from "next/navigation";
+import ReactNiceAvatar from "react-nice-avatar";
+import { GiExitDoor } from "react-icons/gi";
 
 export default function Game() {
   const audioRef = useRef<HTMLAudioElement>(null);
 
   const { connection: socketConnection } = useSignalR()!;
+  const [showLeaveModal, setShowLeaveModal] = useState(false);
   const {
     currentAudio,
     freePlaces,
@@ -181,6 +184,20 @@ export default function Game() {
     router.push("/game/lobby");
   };
 
+  const toggleOpenModalLeave = () => {
+    setShowLeaveModal((old) => !old);
+  };
+
+  const handleAbandon = async () => {
+    try {
+      await socketConnection.invoke("Leave", gameId);
+    } catch (e) {
+      console.log(e);
+    }
+
+    router.push("/game/lobby");
+  };
+
   return (
     <div className="flex flex-col min-h-screen">
       <header className="pt-4 px-4 flex flex-col gap-3 sm:gap-0 sm:flex-row items-center justify-between">
@@ -196,8 +213,27 @@ export default function Game() {
             {timer} segs
           </span>
         </div>
-        <div className="turn">
-          <span>{myTurn ? "Sua vez" : "Vez do adversário"}</span>
+        <div className="flex flex-col items-center gap-2">
+          {myTurn ? (
+            <div className="turn p-3 bg-opacity-30 bg-green-400 flex w-full items-center gap-4 rounded-md text-white">
+              <ReactNiceAvatar className="w-12 h-12" {...profile?.avatar} />
+              <span>Sua vez</span>
+            </div>
+          ) : (
+            <div className="turn p-3 bg-opacity-70 bg-slate-700 flex w-full items-center gap-4 rounded-md text-white">
+              <ReactNiceAvatar
+                className="w-12 h-12"
+                {...opponentProfile?.avatar}
+              />
+              <span>Vez de {opponentProfile?.name}</span>
+            </div>
+          )}
+          <button
+            onClick={toggleOpenModalLeave}
+            className="flex items-center justify-around gap-4 flex-1 w-full rounded-md text-white bg-red-600 px-4 py-2"
+          >
+            Abandonar partida <GiExitDoor className="w-8 h-8 fill-white" />
+          </button>
         </div>
       </header>
       <main className="flex flex-col sm:flex-col lg:flex-row items-center justify-evenly p-4 gap-2 flex-1">
@@ -225,8 +261,14 @@ export default function Game() {
 
           {pieces.map((piece) => {
             const myPiece = piece.color == myColor;
-            const hasSkin = myPiece ? !!profile?.pieces : !!opponentProfile?.pieces;
-            const skin = hasSkin ? (myPiece ? "my_skin" : "opponent_skin") : undefined;
+            const hasSkin = myPiece
+              ? !!profile?.pieces
+              : !!opponentProfile?.pieces;
+            const skin = hasSkin
+              ? myPiece
+                ? "my_skin"
+                : "opponent_skin"
+              : undefined;
             return (
               <Piece
                 key={piece.id}
@@ -258,6 +300,29 @@ export default function Game() {
           showRematch={!opponentLeave}
           type={results}
         />
+      </Modal>
+      <Modal isOpen={showLeaveModal} handleClose={toggleOpenModalLeave}>
+        <Modal.Header
+          showCloseButton
+          handleClose={toggleOpenModalLeave}
+          className="p-2 text-white bg-red-700"
+        >
+          <h2 className="text-xl font-bold">Abandonar partida</h2>
+        </Modal.Header>
+        <Modal.Content className="p-4 flex flex-col text-black">
+          <p className="text-center text-lg">
+            Você tem certeza que deseja abandonar a partida?
+          </p>
+          <p>Sujeito a perder pontos e deixar de ganhar moedas.</p>
+        </Modal.Content>
+        <Modal.Footer>
+          <button
+            className="bg-red-700 py-2 px-4 rounded text-white"
+            onClick={handleAbandon}
+          >
+            Abandonar
+          </button>
+        </Modal.Footer>
       </Modal>
     </div>
   );
