@@ -2,6 +2,7 @@
 import React, { useState, FormEvent } from "react";
 import Cookie from "js-cookie";
 import { useRouter } from "next/navigation";
+import CurrentUserData from './userData';
 
 const Login = () => {
   const [nome, setNome] = useState("");
@@ -23,6 +24,7 @@ const Login = () => {
 
   function handleLogin() {
     Cookie.set("auth_token", "aisodnaoisndauisndbiausbnda");
+    CurrentUserData.setEmail(nome);
     router.push("/");
     console.log(Cookie.get("auth_token"));
   }

@@ -1,6 +1,5 @@
 "use client";
-import { useState } from "react";
-import React from "react";
+import React, { useState } from "react";
 import {
   PayPalScriptProvider,
   PayPalButtons,
@@ -13,14 +12,15 @@ import type {
   OnApproveActions,
   OnApproveData,
 } from "@paypal/paypal-js";
+import CurrentUserData from '@/app/login/userData';
 
 interface PaymentButtonProps {
+  productName: string,
+  coins: string,
   amountValue: string;
-  buttonText: string;
-  buttonClassName: string;
 }
 
-const PaymentButton = ({amountValue, buttonText, buttonClassName}: PaymentButtonProps) => {
+const PaymentButtons = ({productName, coins, amountValue}: PaymentButtonProps) => {
   const [cancelled, setCancelled] = useState(false);
   const [succeeded, setSucceeded] = useState(false);
   const [orderDetails, setOrderDetails] = useState(null);
@@ -33,6 +33,7 @@ const PaymentButton = ({amountValue, buttonText, buttonClassName}: PaymentButton
     const orderID = await actions.order.create({
       purchase_units: [
         {
+          description: coins,
           amount: {
             value: amountValue,
           },
@@ -51,35 +52,35 @@ const PaymentButton = ({amountValue, buttonText, buttonClassName}: PaymentButton
         setLoading("");
   
         try {
-          const response = await fetch("./RegisterPurchase", {
+          
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL!}/api/Transaction/RegisterPurchase`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              orderDetails,
+              Mail: CurrentUserData.getEmail(),
+              Price: orderDetails.purchase_units[0].amount.value,
+              Coins: orderDetails.purchase_units[0].description,
             }),
               })
           } catch (error) {
             console.error("Erro ao enviar dados da transação:", error);
           }
-        
         console.log("Dados da transação enviados com sucesso para o banco de dados.");
+
+        const email = CurrentUserData.getEmail()
+
+        console.log("Dados enviados:", email, orderDetails.purchase_units[0].amount.value, orderDetails.purchase_units[0].description);
+
         
+
       });
     });
-  };
-
-  
+  }; 
 
   return (
     <>
-      {orderDetails && (
-        <pre className="absolute top-0 right-0 w-1/3 h-64 text-xs bg-gray-200 border-2 border-gray-500 overflow-scroll">
-          {JSON.stringify(orderDetails, null, 2)}
-        </pre>
-      )}
-
       <PayPalScriptProvider
         options={{
           clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID!,
@@ -88,14 +89,19 @@ const PaymentButton = ({amountValue, buttonText, buttonClassName}: PaymentButton
         }}
       >
         <PayPalButtons
-          fundingSource={FUNDING.CREDIT}
+          fundingSource={FUNDING.PAYPAL}
           createOrder={createOrder}
           onApprove={onApprove}
         />
-        <div className={buttonClassName}>{buttonText}</div>
+
+        <PayPalButtons
+          fundingSource={FUNDING.CARD}
+          createOrder={createOrder}
+          onApprove={onApprove}
+        />
       </PayPalScriptProvider>
     </>
   );
 };
 
-export default PaymentButton;
+export default PaymentButtons;

@@ -12,6 +12,7 @@ import Modal from "@/app/components/modal";
 import MatchModalContent from "./components/MatchModalContent";
 import { useRouter } from "next/navigation";
 
+
 export default function Game({
   params,
   searchParams: { color: myColor },

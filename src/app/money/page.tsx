@@ -4,27 +4,33 @@ import Item, { MoneyType } from "../components/store/item";
 export default function Money() {
   const moneyItems: MoneyType[] = [
     {
-      name: "30",
+      name: "30 Moedas",
+      coinAmmount: "30",
       price: 5.99,
     },
     {
-      name: "150",
+      name: "150 Moedas",
+      coinAmmount: "150",
       price: 10.99,
     },
     {
-      name: "300",
+      name: "300 Moedas",
+      coinAmmount: "300",
       price: 25.99,
     },
     {
-      name: "500",
+      name: "500 Moedas",
+      coinAmmount: "500",
       price: 30.99,
     },
     {
-      name: "15.000",
+      name: "15.000 Moedas",
+      coinAmmount: "15.000",
       price: 105.99,
     },
     {
-      name: "30.000",
+      name: "30.000 Moedas",
+      coinAmmount: "30.000",
       price: 250.99,
     },
   ];
@@ -51,7 +57,7 @@ export default function Money() {
       <div className="flex justify-center items-center h-[100vh] ">
         <main className="flex flex-wrap gap-12 justify-center place-self-center">
           {moneyItems.map((item) => (
-            <Item key={item.name} name={item.name} price={item.price} />
+            <Item key={item.name} name={item.name} coinAmmount={item.coinAmmount}  price={item.price} />
           ))}
         </main>
       </div>
