@@ -4,7 +4,7 @@ export default function Board({
   bulletColors,
   lineColor,
   borderLineColor,
-    backgroundImage,
+  backgroundImage,
 }: {
   bulletColors: string;
   lineColor: string;

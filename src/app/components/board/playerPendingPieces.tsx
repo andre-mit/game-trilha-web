@@ -1,3 +1,5 @@
+import { ProfileType } from "@/app/(authorized)/game/play/@types/profile";
+import { profile } from "console";
 import { ComponentProps } from "react";
 import { VariantProps, tv } from "tailwind-variants";
 
@@ -26,7 +28,11 @@ const piece = tv({
 
 export type PlayerPendingPiecesProps = ComponentProps<"div"> &
   VariantProps<typeof piecesContainer> &
-  VariantProps<typeof piece> & { count: number; text: string };
+  VariantProps<typeof piece> & {
+    count: number;
+    text: string;
+    profile: ProfileType;
+  };
 
 const PlayerPendingPieces = ({
   count,
@@ -34,6 +40,7 @@ const PlayerPendingPieces = ({
   containerType,
   pieceColor,
   text,
+  profile,
   ...rest
 }: PlayerPendingPiecesProps) => {
   return (
@@ -41,7 +48,16 @@ const PlayerPendingPieces = ({
       <span className="font-bold">{text}</span>
       <div className={piecesContainer({ containerType, className })} {...rest}>
         {[...Array(count)].map((_, index) => (
-          <div key={index} className={piece({ pieceColor })}></div>
+          <div
+            key={index}
+            className={piece({ pieceColor })}
+            style={{
+              backgroundImage: profile.pieces
+                ? `url('${profile.pieces}')`
+                : undefined,
+              backgroundSize: "cover",
+            }}
+          ></div>
         ))}
       </div>
     </div>

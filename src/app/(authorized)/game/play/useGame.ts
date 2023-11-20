@@ -5,6 +5,7 @@ import ColorEnum from "@/enums/colorEnum";
 import { getAllBoardPlaces, getPlaces } from "@/helpers/placesVerification";
 import { fetchWrapper } from "@/services/fetchWrapper";
 import { getAvailableRemovePieces, placeStage } from "./useGame.functions";
+import { ProfileType } from "./@types/profile";
 
 type StateProps = {
   currentAudio: {
@@ -22,6 +23,8 @@ type StateProps = {
   results?: "win" | "lose" | "draw";
   playerColor: ColorEnum;
   gameId: string;
+  profile?: ProfileType;
+  opponentProfile?: ProfileType;
 };
 
 type ActionProps =
@@ -90,6 +93,10 @@ type ActionProps =
   | {
       type: "setPendingPlacePieces";
       payload: Record<ColorEnum, number>;
+    }
+  | {
+      type: "setProfiles";
+      payload: { profile: ProfileType; opponentProfile: ProfileType };
     };
 
 export default function useGame() {
@@ -148,7 +155,10 @@ export default function useGame() {
         if (action.payload != state.playerColor) return state;
 
         playType = "remove";
-        const availableRemove = getAvailableRemovePieces(state.pieces, state.playerColor);
+        const availableRemove = getAvailableRemovePieces(
+          state.pieces,
+          state.playerColor
+        );
 
         const piecesHighlight = state.pieces.map((p) => {
           return {
@@ -266,6 +276,12 @@ export default function useGame() {
         return { ...state, selectedPiece, freePlaces: freeP };
       case "setPendingPlacePieces":
         return { ...state, pendingPlacePieces: action.payload };
+      case "setProfiles":
+        return {
+          ...state,
+          profile: action.payload.profile,
+          opponentProfile: action.payload.opponentProfile,
+        };
       case "setPieces":
         return { ...state, pieces: action.payload ?? [] };
       case "setColor":
@@ -298,6 +314,8 @@ export default function useGame() {
     results: undefined,
     playerColor: ColorEnum.White,
     gameId: "",
+    profile: undefined,
+    opponentProfile: undefined,
   };
 
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -320,6 +338,16 @@ export default function useGame() {
       dispatch({
         type: "setPendingPlacePieces",
         payload: response.data.pendingPlacePieces,
+      });
+
+      const profile = response.data.profile as ProfileType;
+      const opponentProfile = response.data.opponentProfile as ProfileType;
+      dispatch({
+        type: "setProfiles",
+        payload: {
+          profile: profile,
+          opponentProfile: opponentProfile,
+        },
       });
     };
 
@@ -394,6 +422,8 @@ export default function useGame() {
     opponentLeave: state.opponentLeave,
     myColor: state.playerColor,
     gameId: state.gameId,
+    profile: state.profile,
+    opponentProfile: state.opponentProfile,
 
     handlePlaceStage,
     handleMoveStage,

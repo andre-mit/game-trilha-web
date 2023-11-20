@@ -11,6 +11,7 @@ import PlayerPendingPieces from "@/app/components/board/playerPendingPieces";
 import Modal from "@/app/components/modal";
 import MatchModalContent from "./components/MatchModalContent";
 import { useRouter } from "next/navigation";
+import { ProfileType } from "./@types/profile";
 
 export default function Game() {
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -29,6 +30,8 @@ export default function Game() {
     opponentLeave,
     myColor,
     gameId,
+    profile,
+    opponentProfile,
 
     handleMakeMove,
     handleMakePlace,
@@ -200,33 +203,40 @@ export default function Game() {
       </header>
       <main className="flex flex-col sm:flex-col lg:flex-row items-center justify-evenly p-4 gap-2 flex-1">
         <audio src={currentAudio.src} ref={audioRef} />
-        {!!pendingMyPlacePieces && (
+        {!!pendingMyPlacePieces && !!profile && (
           <PlayerPendingPieces
             count={pendingMyPlacePieces}
+            profile={profile}
             text="Minhas Peças"
             containerType="my"
             pieceColor={myColor == ColorEnum.White ? "white" : "black"}
           />
         )}
-        <Board freePlaces={freePlaces ?? []} handleMove={handlePlay}>
-          {pieces.map((piece) => {
-            return (
-              <Piece
-                key={piece.id}
-                id={piece.id}
-                color={piece.color}
-                place={piece.place}
-                highlight={piece.highlight}
-                onSelect={() => handleToggleSelectPiece(piece.place)}
-                onRemove={handleRemove}
-              />
-            );
-          })}
+        <Board freePlaces={freePlaces ?? []} handleMove={handlePlay} customBoardProps={profile?.board}>
+          <defs>
+            <clipPath id="my-pieces-clip" clipRule="nonzero" clipPath=" ">
+              {pieces.map((piece) => {
+                return (
+                  <Piece
+                    key={piece.id}
+                    id={piece.id}
+                    color={piece.color}
+                    place={piece.place}
+                    highlight={piece.highlight}
+                    onSelect={() => handleToggleSelectPiece(piece.place)}
+                    onRemove={handleRemove}
+                  />
+                );
+              })}
+            </clipPath>
+          </defs>
+          <image href={profile?.pieces} clipPath="" preserveAspectRatio="xMinYMin meet" height={50} width={50}  />
         </Board>
-        {!!pendingOpponentPlacePieces && (
+        {!!pendingOpponentPlacePieces && opponentProfile && (
           <PlayerPendingPieces
             count={pendingOpponentPlacePieces}
-            text="Peças Adversárias"
+            profile={opponentProfile}
+            text={`Peças de ${opponentProfile.name}`}
             containerType="opponent"
             pieceColor={myColor == ColorEnum.White ? "black" : "white"}
           />
