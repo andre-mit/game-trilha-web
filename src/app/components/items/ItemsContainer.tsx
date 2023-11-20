@@ -52,7 +52,7 @@ const ItemSkin: FC<IItemSkinProps> = ({ onUse, onBuy, skins, title, type }) => {
             src={skin.src}
             height={128}
             width={128}
-            className="mx-auto w-32 h-40 object-contain py-4"
+            className="mx-auto w-32 h-40 object-contain py-4 rounded-full"
             alt={skin.description}
           />
           {type === "store" ? (
