@@ -6,6 +6,7 @@ import { getAllBoardPlaces, getPlaces } from "@/helpers/placesVerification";
 import { fetchWrapper } from "@/services/fetchWrapper";
 import { getAvailableRemovePieces, placeStage } from "./useGame.functions";
 import { ProfileType } from "./@types/profile";
+import { useToast } from "@/components/ui/use-toast";
 
 type StateProps = {
   currentAudio: {
@@ -100,6 +101,7 @@ type ActionProps =
     };
 
 export default function useGame() {
+  const { toast } = useToast();
   const makePlace = ({
     pieceId,
     place,
@@ -139,12 +141,28 @@ export default function useGame() {
           state.playerColor
         );
 
+        if (action.payload.turn == state.playerColor)
+          toast({
+            title: "Fase de Posicionamento",
+            description: "Posicione suas peças no tabuleiro",
+            variant: "default",
+            duration: 4000,
+          });
+
         return { ...state, playType, ...placeStageResult };
       case "moveStage":
         const turn = action.payload;
         playType = "move";
         const timer = 15;
         const freePlaces = [] as PlaceProps[];
+
+        if (turn == state.playerColor)
+          toast({
+            title: "Fase de Movimentação",
+            description: "Movimente suas peças no tabuleiro",
+            variant: "default",
+            duration: 4000,
+          });
 
         return { ...state, turn, playType, timer, freePlaces };
       case "removeStage":
@@ -166,6 +184,13 @@ export default function useGame() {
             highlight: availableRemove.includes(p.id),
           };
         });
+
+          toast({
+            title: "Moinho",
+            description: "Você pode retirar uma peça do adversário",
+            variant: "default",
+            duration: 4000,
+          });
 
         return {
           ...state,

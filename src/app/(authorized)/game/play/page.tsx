@@ -11,7 +11,6 @@ import PlayerPendingPieces from "@/app/components/board/playerPendingPieces";
 import Modal from "@/app/components/modal";
 import MatchModalContent from "./components/MatchModalContent";
 import { useRouter } from "next/navigation";
-import { ProfileType } from "./@types/profile";
 
 export default function Game() {
   const audioRef = useRef<HTMLAudioElement>(null);
