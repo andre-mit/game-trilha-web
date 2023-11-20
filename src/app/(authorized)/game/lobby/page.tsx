@@ -13,6 +13,7 @@ import truncateText from "@/helpers/truncateText";
 import BackButton from "@/app/components/backButton";
 import Link from "next/link";
 import { GiCrown } from "react-icons/gi";
+import { Checkbox } from "@/components/ui/checkbox";
 
 type RoomType = {
   name: string;
@@ -22,6 +23,7 @@ type RoomType = {
 
 type ProfileRoomType = Profile & {
   moinho: boolean;
+  ready: boolean;
 };
 
 enum RoomState {
@@ -50,7 +52,11 @@ export default function LobbyPage() {
                 joined:
                   !!room.players.find((x) => x.id === user.id) ||
                   player.id === user.id,
-                players: room.players.concat({ moinho: false, ...player }),
+                players: room.players.concat({
+                  moinho: false,
+                  ready: false,
+                  ...player,
+                }),
               }
             : { ...room }
         )
@@ -98,6 +104,27 @@ export default function LobbyPage() {
         );
       }
     );
+
+    signalR?.on("Ready", (gameId: string, playerId: string, ready: boolean) => {
+      setRooms((rooms) =>
+        rooms.map((room) =>
+          room.name === gameId
+            ? {
+                ...room,
+                players: room.players.map((player) => {
+                  if (player.id === playerId) {
+                    return {
+                      ...player,
+                      ready,
+                    };
+                  }
+                  return player;
+                }),
+              }
+            : { ...room }
+        )
+      );
+    });
 
     signalR?.on("StartMatch", () => {
       router.push(`/game/play`);
@@ -228,7 +255,9 @@ export default function LobbyPage() {
                 {players.map((player) => (
                   <div
                     key={`${name}_${player.id}`}
-                    className="flex flex-col gap-2"
+                    className={`flex flex-col gap-2 p-2 rounded-md ${
+                      player.ready && "bg-green-800"
+                    }`}
                   >
                     <div className="flex flex-1 justify-between items-center gap-4">
                       <Avatar className="w-12 h-12" {...player.avatar} />
@@ -271,9 +300,19 @@ export default function LobbyPage() {
               ) : (
                 <div className="flex-1 flex flex-col justify-center">
                   <Room.RoomActions>
-                    <Room.RoomButton onClick={() => ready(name)} action="ready">
-                      Pronto
-                    </Room.RoomButton>
+                    {players.length < 2 || players.some((x) => !x.ready) && (
+                      <Room.RoomButton
+                        onClick={() => ready(name)}
+                        action="ready"
+                      >
+                        Pronto{" "}
+                        <Checkbox
+                          className="ml-2 text-white outline-white border-white accent-white"
+                          color="white"
+                          checked={players.find((x) => x.id == user.id)?.ready}
+                        />
+                      </Room.RoomButton>
+                    )}
                     <Room.RoomButton onClick={() => leave(name)} action="leave">
                       Sair
                     </Room.RoomButton>
