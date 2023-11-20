@@ -39,6 +39,9 @@ const PaymentButtons = ({productName, coins, amountValue}: PaymentButtonProps) =
           },
         },
       ],
+      application_context: {
+        shipping_preference: 'NO_SHIPPING'
+      }
     });
     return orderID;
   };
