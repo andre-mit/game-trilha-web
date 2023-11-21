@@ -10,7 +10,6 @@ export default function Home() {
     { lugar: 5, players: "Player 3", score: 80 },
   ];
 
-
   return (
     <div className="wrapper flex flex-col justify-between h-screen">
       <header className="flex justify-center pt-4 pl-4 pr-4">
@@ -23,6 +22,9 @@ export default function Home() {
               </span>
             </span>
           </div>
+        </div>
+        <div className="  fixed top-0 right-0 p-4 text-white">
+          <BackButton />
         </div>
       </header>
       <main className="max-w-[90rem] flex flex-wrap gap-6 overflow-x-auto place-self-center items-center justify-center w-full p-8">
@@ -47,9 +49,7 @@ export default function Home() {
           </tbody>
         </table>
       </main>
-      <footer className="self-end ml-auto p-4 text-white">
-        <BackButton />
-      </footer>
+      <footer className="self-end ml-auto p-4 text-white"></footer>
     </div>
   );
 }
