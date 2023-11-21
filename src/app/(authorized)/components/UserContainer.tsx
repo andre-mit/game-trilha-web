@@ -12,11 +12,10 @@ const UserContainer = ({
   const { name, avatar } = useUser();
 
   return (
-    <Link href="/user" suppressHydrationWarning={suppressHydrationWarning} className="flex flex-col items-center gap-2">
+    <div suppressHydrationWarning={suppressHydrationWarning} className="flex flex-col items-center gap-2">
       <Avatar className="w-32 h-32" {...avatar} />
       <span>{truncateText(name, 20)}</span>
-      <span className="underline">Alterar perfil</span>
-    </Link>
+    </div>
   );
 };
 

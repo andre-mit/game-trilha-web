@@ -74,7 +74,7 @@ const UserRegister = () => {
         </h2>
         <div className="avatar-area self-center flex flex-col items-center gap-2">
           <Avatar className="w-32 h-32" {...avatarConfig} />
-          <span className="text-black text-sm underline">Será possivel alterar o avatar após o cadastro</span>
+          <span className="text-black text-sm underline"></span>
         </div>
         <form onSubmit={handleSubmit(handleFormSubmit)}>
           <div className="mb-4">
