@@ -45,7 +45,7 @@ const ItemSkin: FC<IItemSkinProps> = ({ onUse, onBuy, skins, title, type }) => {
       )}
       {skins.map((skin) => (
         <div key={skin.id} className="bg-green-300 shadow-md">
-          <div className="bg-yellow-900 rounded-md text-white border-b-2 p-2">
+          <div className="bg-yellow-900 rounded-md text-white mx-auto border-b-2 px-16 py-2">
             <h3 className="text-lg font-semibold text-center">{skin.name}</h3>
           </div>
           <Image
@@ -92,7 +92,7 @@ const ItemBoard: FC<IItemBoardProps> = ({
       </span>
       {boards.map((board) => (
         <div key={board.id} className="bg-green-300 shadow-md">
-          <div className="bg-yellow-900 rounded-md text-white border-b-2 p-2">
+          <div className="bg-yellow-900 rounded-md text-white mx-auto border-b-2 px-16 py-2">
             <h3 className="text-lg font-semibold text-center">{board.name}</h3>
           </div>
           <Image
@@ -105,10 +105,7 @@ const ItemBoard: FC<IItemBoardProps> = ({
           {type === "store" ? (
             <>
               <span className="inline-block text-xl w-2/4 bg-red-600 rounded-md p-2 shadow-xl text-center">
-                {board.price.toLocaleString("BRL", {
-                  currency: "BRL",
-                  style: "currency",
-                })}
+                {board.price}
               </span>
               <button
                 onClick={() => onBuy?.(board)}
