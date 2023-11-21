@@ -12,7 +12,7 @@ import type {
   OnApproveActions,
   OnApproveData,
 } from "@paypal/paypal-js";
-import CurrentUserData from '@/app/login/userData';
+import CurrentUserData from "@/app/(non-authorized)/login/components/userData";
 
 interface PaymentButtonProps {
   productName: string,
