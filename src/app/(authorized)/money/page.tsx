@@ -3,39 +3,45 @@
 import { useState } from "react";
 import BalanceLink from "@/app/components/BalanceLink";
 import BackButton from "@/app/components/backButton";
-import PaymentButton from "@/app/components/paymentButton";
+import PaymentButtons from "../../components/store/paymentButtons";
 import Item, { MoneyType } from "@/app/components/store/item";
 
 export default function Money() {
   const moneyItems: MoneyType[] = [
     {
       id: 1,
-      name: "30",
+      name: "30 Moedas",
+      coinAmmount: "30",
       price: 5.99,
     },
     {
       id: 2,
-      name: "150",
+      name: "150 Moedas",
+      coinAmmount: "150",
       price: 10.99,
     },
     {
       id: 3,
-      name: "300",
+      name: "300 Moedas",
+      coinAmmount: "300",
       price: 25.99,
     },
     {
       id: 4,
-      name: "500",
+      name: "500 Moedas",
+      coinAmmount: "500",
       price: 30.99,
     },
     {
       id: 5,
-      name: "15.000",
+      name: "15.000 Moedas",
+      coinAmmount: "15.000",
       price: 105.99,
     },
     {
       id: 6,
-      name: "30.000",
+      name: "30.000 Moedas",
+      coinAmmount: "30.000",
       price: 250.99,
     },
   ];
@@ -80,19 +86,6 @@ export default function Money() {
             />
           ))}
         </main>
-        {selectedItemId && (
-          <section>
-            <h3 className="text-2xl font-bold">Pagamento</h3>
-            <div className="flex p-8 text-xl">
-              <span>
-                Pagar R$ {selectedItem!.price} com
-                <PaymentButton
-                  amountValue={selectedItem!.price.toLocaleString()}
-                />
-              </span>
-            </div>
-          </section>
-        )}
       </div>
     </>
   );

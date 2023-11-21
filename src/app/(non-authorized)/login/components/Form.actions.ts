@@ -1,6 +1,7 @@
 "use server";
 import { fetchWrapper } from "@/services/fetchWrapper";
 import { cookies } from "next/headers";
+import CurrentUserData from './userData';
 
 export const login = async (formaData: FormData): Promise<{error?: string;}> => {
   const email = formaData.get("email");
@@ -20,7 +21,8 @@ export const login = async (formaData: FormData): Promise<{error?: string;}> => 
     
     if (result.success) {
       cookies().set("auth_token", result.data as string);
-      
+      CurrentUserData.setEmail(email!.toString());
+
       return {  };
     } else {
       return { error: result.data };

@@ -16,7 +16,7 @@ const Form: React.FC = () => {
         title: "Login efetuado com sucesso",
         description: "Sucesso",
       });
-      router.push("/");
+      router.push("/");      
     } else {
       toast({
         title: "Falha ao efetuar login",
