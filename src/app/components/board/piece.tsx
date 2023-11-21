@@ -38,7 +38,7 @@ export default function Piece({
   const handleClick = () =>
     !highlight
       ? onSelect({ track, line, column })
-      : onRemove({track, line, column});
+      : onRemove({ track, line, column });
 
   const x = position?.x;
   const y = position?.y;
@@ -51,7 +51,20 @@ export default function Piece({
         animate={{ cx: x, cy: y }}
         cx={x}
         cy={y}
+        r="12"
+        fill={colorClass}
+        strokeWidth={2}
+        stroke={colorClass}
+        onClick={handleClick}
+      />
+      <motion.circle
+        id={id}
+        aria-description={highlight ? "remove" : "piece"}
+        animate={{ cx: x, cy: y }}
+        cx={x}
+        cy={y}
         r="11"
+        filter={`url(#${skin})`}
         fill={colorClass}
         strokeWidth={2}
         stroke={colorClass}
@@ -61,7 +74,7 @@ export default function Piece({
         <motion.circle
           cx={x}
           cy={y}
-          r="13"
+          r="14"
           fill={"transparent"}
           initial="hidden"
           animate="visible"
