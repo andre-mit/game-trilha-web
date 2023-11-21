@@ -180,7 +180,6 @@ const Loja = () => {
                   alt={board.description}
                   width={128}
                   height={128}
-                  className="rounded-full"
                 />
                 <ItemFooter>
                   <span className="inline-block text-xl w-2/4 bg-red-600 rounded-md p-2 shadow-xl text-center">

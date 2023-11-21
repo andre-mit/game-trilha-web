@@ -1,14 +1,9 @@
 import { GiCrown } from "react-icons/gi";
 import BackButton from "@/app/components/backButton";
+import RankingTable from "./components/rankingTable";
 
 export default function Home() {
-  const tabelaDados = [
-    { lugar: 1, players: "Player 1", score: 100 },
-    { lugar: 2, players: "Player 2", score: 90 },
-    { lugar: 3, players: "Player 3", score: 80 },
-    { lugar: 4, players: "Player 3", score: 80 },
-    { lugar: 5, players: "Player 3", score: 80 },
-  ];
+
 
 
   return (
@@ -25,27 +20,8 @@ export default function Home() {
           </div>
         </div>
       </header>
-      <main className="max-w-[90rem] flex flex-wrap gap-6 overflow-x-auto place-self-center items-center justify-center w-full p-8">
-        <table className="table-auto min-w-full bg-white text-black rounded-2xl overflow-hidden">
-          <thead>
-            <tr className="bg-yellow-400 text-black">
-              <th className="py-2 border border-black" style={{ width: "6ch" }}>
-                Lugar
-              </th>
-              <th className="py-2 border border-black">Players</th>
-              <th className="py-2 border border-black">Score</th>
-            </tr>
-          </thead>
-          <tbody>
-            {tabelaDados.map((item, index) => (
-              <tr key={index}>
-                <td className=" h-16 px-4 border border-black">{item.lugar}</td>
-                <td className=" px-4 border border-black">{item.players}</td>
-                <td className=" px-4 border border-black">{item.score}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <main className="max-w-[90rem] flex flex-wrap flex-col gap-6 overflow-x-auto place-self-center items-center justify-center w-full p-8">
+        <RankingTable />
       </main>
       <footer className="self-end ml-auto p-4 text-white">
         <BackButton />
