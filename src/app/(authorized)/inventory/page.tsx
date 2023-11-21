@@ -198,7 +198,6 @@ const InventarioJogador = () => {
                     alt={board.description}
                     width={128}
                     height={128}
-                    className="rounded-full"
                   />
                   <ItemFooter>
                     <button
