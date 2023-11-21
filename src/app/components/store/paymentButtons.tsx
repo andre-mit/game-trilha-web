@@ -12,7 +12,7 @@ import type {
   OnApproveActions,
   OnApproveData,
 } from "@paypal/paypal-js";
-import CurrentUserData from "@/app/(non-authorized)/login/components/userData";
+import {useUser} from '@/hooks/useUser'
 
 interface PaymentButtonProps {
   productName: string,
@@ -25,6 +25,7 @@ const PaymentButtons = ({productName, coins, amountValue}: PaymentButtonProps) =
   const [succeeded, setSucceeded] = useState(false);
   const [orderDetails, setOrderDetails] = useState(null);
   const [loading, setLoading] = useState("");
+  const user = useUser();
 
   const createOrder = async (
     data: CreateOrderData,
@@ -46,23 +47,23 @@ const PaymentButtons = ({productName, coins, amountValue}: PaymentButtonProps) =
     return orderID;
   };
 
-  const onApprove = async (data: OnApproveData, actions: OnApproveActions) => {
+  async function onApprove(data: OnApproveData, actions: OnApproveActions) {
     setLoading("Processando Pagamento");
   
     actions.order!.get().then((orderDetails: OrderResponseBody) => {
       actions.order!.capture().then(async (captureData: any) => {
         setOrderDetails(captureData);
         setLoading("");
+        const email = user.email;
   
         try {
-          
           const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL!}/api/Transaction/RegisterPurchase`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              Mail: CurrentUserData.getEmail(),
+              Mail: email,
               Price: orderDetails.purchase_units[0].amount.value,
               Coins: orderDetails.purchase_units[0].description,
             }),
@@ -72,12 +73,8 @@ const PaymentButtons = ({productName, coins, amountValue}: PaymentButtonProps) =
           }
         console.log("Dados da transação enviados com sucesso para o banco de dados.");
 
-        const email = CurrentUserData.getEmail()
 
         console.log("Dados enviados:", email, orderDetails.purchase_units[0].amount.value, orderDetails.purchase_units[0].description);
-
-        
-
       });
     });
   }; 
