@@ -201,7 +201,7 @@ export default function Game() {
   return (
     <div className="flex flex-col min-h-screen">
       <header className="pt-4 px-4 flex flex-col gap-3 sm:gap-0 sm:flex-row items-center justify-between">
-        <Audio src="https://gametrilha.blob.core.windows.net/assets/music/mario.mp3" />
+        <Audio src="/Sons/fundo.mp3" />
         <div className="timer justify-self-end">
           <span
             className={`text-white font-semibold text-md rounded-full px-3 py-1 min-w-full ${
