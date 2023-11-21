@@ -35,13 +35,13 @@ export default function Money() {
     {
       id: 5,
       name: "15.000 Moedas",
-      coinAmmount: "15.000",
+      coinAmmount: "15000",
       price: 105.99,
     },
     {
       id: 6,
       name: "30.000 Moedas",
-      coinAmmount: "30.000",
+      coinAmmount: "30000",
       price: 250.99,
     },
   ];
