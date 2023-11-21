@@ -13,6 +13,7 @@ import MatchModalContent from "./components/MatchModalContent";
 import { useRouter } from "next/navigation";
 import ReactNiceAvatar from "react-nice-avatar";
 import { GiExitDoor } from "react-icons/gi";
+import useTurnTimer from "./useTurnTimer";
 
 export default function Game() {
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -202,17 +203,19 @@ export default function Game() {
     <div className="flex flex-col min-h-screen">
       <header className="pt-4 px-4 flex flex-col gap-3 sm:gap-0 sm:flex-row items-center justify-between">
         <Audio src="/Sons/fundo.mp3" />
-        <div className="timer justify-self-end">
-          <span
-            className={`text-white font-semibold text-md rounded-full px-3 py-1 min-w-full ${
-              timer > 5
-                ? "bg-green-500 dark:bg-green-400"
-                : "bg-red-600 dark:bg-red-500"
-            }`}
-          >
-            {timer} segs
-          </span>
-        </div>
+        {timer < 15 && (
+          <div className="timer justify-self-end">
+            <span
+              className={`text-white font-semibold text-md rounded-full px-3 py-1 min-w-full ${
+                timer > 5
+                  ? "bg-green-500 dark:bg-green-400"
+                  : "bg-red-600 dark:bg-red-500"
+              }`}
+            >
+              {timer} segs
+            </span>
+          </div>
+        )}
         <div className="flex flex-col items-center gap-2">
           {myTurn ? (
             <div className="turn p-3 bg-opacity-30 bg-green-400 flex w-full items-center gap-4 rounded-md text-white">

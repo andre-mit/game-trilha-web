@@ -7,6 +7,7 @@ import { fetchWrapper } from "@/services/fetchWrapper";
 import { getAvailableRemovePieces, placeStage } from "./useGame.functions";
 import { ProfileType } from "./@types/profile";
 import { useToast } from "@/components/ui/use-toast";
+import useTurnTimer from "./useTurnTimer";
 
 type StateProps = {
   currentAudio: {
@@ -18,7 +19,6 @@ type StateProps = {
   selectedPiece: PlaceProps | null;
   playType: "move" | "place" | "remove";
   pendingPlacePieces: Record<ColorEnum, number>;
-  timer: number;
   pieces: PieceProps[];
   opponentLeave: boolean;
   results?: "win" | "lose" | "draw";
@@ -84,10 +84,6 @@ type ActionProps =
       payload: ColorEnum;
     }
   | {
-      type: "setTimer";
-      payload: number;
-    }
-  | {
       type: "setPieces";
       payload: PieceProps[];
     }
@@ -101,7 +97,9 @@ type ActionProps =
     };
 
 export default function useGame() {
-  const { toast } = useToast();
+  // const { toast } = useToast();
+  const timer = useTurnTimer(15);
+
   const makePlace = ({
     pieceId,
     place,
@@ -141,30 +139,15 @@ export default function useGame() {
           state.playerColor
         );
 
-        if (action.payload.turn == state.playerColor)
-          toast({
-            title: "Fase de Posicionamento",
-            description: "Posicione suas peças no tabuleiro",
-            variant: "default",
-            duration: 4000,
-          });
-
         return { ...state, playType, ...placeStageResult };
       case "moveStage":
         const turn = action.payload;
         playType = "move";
-        const timer = 15;
+        timer.reset();
+        timer.start();
         const freePlaces = [] as PlaceProps[];
 
-        if (turn == state.playerColor)
-          toast({
-            title: "Fase de Movimentação",
-            description: "Movimente suas peças no tabuleiro",
-            variant: "default",
-            duration: 4000,
-          });
-
-        return { ...state, turn, playType, timer, freePlaces };
+        return { ...state, turn, playType, freePlaces };
       case "removeStage":
         const newCurrentAudioRemoveStage = {
           src: "/sons/retirar_disponivel.mp3",
@@ -185,18 +168,13 @@ export default function useGame() {
           };
         });
 
-          toast({
-            title: "Moinho",
-            description: "Você pode retirar uma peça do adversário",
-            variant: "default",
-            duration: 4000,
-          });
+        timer.reset();
+        timer.start();
 
         return {
           ...state,
           pieces: piecesHighlight,
           playType: playType,
-          timer: 15,
           freePlaces: [],
           currentAudio: newCurrentAudioRemoveStage,
         };
@@ -311,8 +289,6 @@ export default function useGame() {
         return { ...state, pieces: action.payload ?? [] };
       case "setColor":
         return { ...state, playerColor: action.payload };
-      case "setTimer":
-        return { ...state, timer: action.payload };
       case "setGameId":
         return { ...state, gameId: action.payload };
       case "setResults":
@@ -333,7 +309,6 @@ export default function useGame() {
     selectedPiece: null,
     playType: "place",
     pendingPlacePieces: { [ColorEnum.Black]: 9, [ColorEnum.White]: 9 },
-    timer: 15,
     pieces: [],
     opponentLeave: false,
     results: undefined,
@@ -436,7 +411,7 @@ export default function useGame() {
 
   return {
     currentAudio: state.currentAudio,
-    timer: state.timer,
+    timer: timer.secondsRemaining,
     turn: state.turn,
     freePlaces: state.freePlaces,
     selectedPiece: state.selectedPiece,
