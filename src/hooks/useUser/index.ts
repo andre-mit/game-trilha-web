@@ -1,11 +1,19 @@
 import { UserType } from "@/@types/user";
-import { create } from "zustand";
+import { StoreApi, create } from "zustand";
 
-export const useUser = create<UserType>((set) => ({
+type Actions = {
+  increaseBalance: (value: number) => void;
+  decreaseBalance: (value: number) => void;
+};
+
+export const useUser = create<UserType & Actions>((set, get) => ({
   id: "",
   name: "",
   email: "",
   balance: 0,
   roles: [],
-  profile: null
+  profile: null,
+
+  increaseBalance: (value) => set({ balance: get().balance + value }),
+  decreaseBalance: (value) => set({ balance: get().balance - value }),
 }));

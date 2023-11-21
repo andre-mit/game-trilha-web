@@ -46,10 +46,18 @@ export async function fetchWrapper<T, ErrorType = unknown>(
     }
   );
 
-  if (!response.ok) {
+  if (!response.status.toString().startsWith("2")) {
     return {
       success: false,
       data: await response.text(),
+      statusCode: response.status,
+    };
+  }
+
+  if(response.status === 204) {
+    return {
+      success: true,
+      data: null,
       statusCode: response.status,
     };
   }
