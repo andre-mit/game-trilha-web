@@ -52,16 +52,13 @@ const ItemSkin: FC<IItemSkinProps> = ({ onUse, onBuy, skins, title, type }) => {
             src={skin.src}
             height={128}
             width={128}
-            className="mx-auto w-32 h-40 object-contain py-4"
+            className="mx-auto w-32 h-40 object-contain py-4 rounded-full"
             alt={skin.description}
           />
           {type === "store" ? (
             <>
               <span className="inline-block text-xl w-2/4 bg-red-600 rounded-md p-2 shadow-xl text-center">
-                {skin.price.toLocaleString("BRL", {
-                  currency: "BRL",
-                  style: "currency",
-                })}
+                {skin.price}
               </span>
               <button onClick={() => onBuy?.(skin)} className="bg-green-500 disabled:bg-green-700 disabled:opacity-70 text-xl w-2/4 text-white rounded-md p-2 shadow-xl">
                 Comprar
