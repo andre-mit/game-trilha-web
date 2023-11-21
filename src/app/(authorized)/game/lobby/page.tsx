@@ -14,6 +14,7 @@ import BackButton from "@/app/components/backButton";
 import Link from "next/link";
 import { GiCrown } from "react-icons/gi";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type RoomType = {
   name: string;
@@ -221,6 +222,8 @@ export default function LobbyPage() {
     }
   };
 
+  const fakeCount = Array.from({ length: 20 }, (_, i) => i);
+
   return (
     <>
       <header className="flex justify-between items-center p-4">
@@ -231,97 +234,110 @@ export default function LobbyPage() {
         </Link>
       </header>
       <main className="rooms flex lg:max-w-[1100px] max-w-[600px] mx-auto my-8 gap-8 flex-shrink flex-wrap">
-        {rooms.map(({ name, players, state }) => {
-          const disabled = state != RoomState.Waiting || players.length === 2;
-          const joined = !!players.find((x) => x.id === user.id);
-          const stateColor =
-            state == RoomState.Waiting
-              ? "waiting"
-              : state == RoomState.Playing
-              ? "running"
-              : "ready";
-          return (
-            <Room.Root
-              color={stateColor}
-              key={name}
-              className="w-[500px] h-[250px] rounded-xl"
-            >
-              <header className="flex justify-between">
-                <h3 className="">Sala {name}</h3>
-                <span>{getStateText(state)}</span>
-              </header>
+        {rooms.length == 0
+          ? fakeCount.map((_) => (
+              <Skeleton key={`skeleton_${_}`} className="h-[250px] w-[500px]" />
+            ))
+          : rooms.map(({ name, players, state }) => {
+              const disabled =
+                state != RoomState.Waiting || players.length === 2;
+              const joined = !!players.find((x) => x.id === user.id);
+              const stateColor =
+                state == RoomState.Waiting
+                  ? "waiting"
+                  : state == RoomState.Playing
+                  ? "running"
+                  : "ready";
+              return (
+                <Room.Root
+                  color={stateColor}
+                  key={name}
+                  className="w-[500px] h-[250px] rounded-xl"
+                >
+                  <header className="flex justify-between">
+                    <h3 className="">Sala {name}</h3>
+                    <span>{getStateText(state)}</span>
+                  </header>
 
-              <Room.RoomContent>
-                {players.map((player) => (
-                  <div
-                    key={`${name}_${player.id}`}
-                    className={`flex flex-col gap-2 p-2 rounded-md ${
-                      player.ready && "bg-green-800"
-                    }`}
-                  >
-                    <div className="flex flex-1 justify-between items-center gap-4">
-                      <Avatar className="w-12 h-12" {...player.avatar} />
-                      <div className="flex items-end gap-3">
-                        <label htmlFor={`moinho-duplo-${name}-${player.id}`}>
-                          Moinho duplo
-                        </label>
-                        <Switch
-                          id={`moinho-duplo-${name}-${player.id}`}
-                          color="indigo"
-                          checked={player.moinho}
-                          onCheckedChange={(checked: boolean) => {
-                            toggleMoinho(name, checked);
-                          }}
-                          disabled={player.id != user.id}
-                        />
-                      </div>
-                    </div>
-                    <span>{truncateText(player.name, 25)}</span>
-                  </div>
-                ))}
-              </Room.RoomContent>
-
-              {!joined ? (
-                !joinedAnyRoom && (
-                  <Room.RoomActions>
-                    <Room.RoomButton
-                      onClick={() => join(name)}
-                      action="join"
-                      disabled={disabled}
-                    >
-                      {players.length === 2
-                        ? "Lotada"
-                        : disabled
-                        ? "Finalizando"
-                        : "Entrar"}
-                    </Room.RoomButton>
-                  </Room.RoomActions>
-                )
-              ) : (
-                <div className="flex-1 flex flex-col justify-center">
-                  <Room.RoomActions>
-                    {players.length < 2 || players.some((x) => !x.ready) && (
-                      <Room.RoomButton
-                        onClick={() => ready(name)}
-                        action="ready"
+                  <Room.RoomContent>
+                    {players.map((player) => (
+                      <div
+                        key={`${name}_${player.id}`}
+                        className={`flex flex-col gap-2 p-2 rounded-md ${
+                          player.ready && "bg-green-800"
+                        }`}
                       >
-                        Pronto{" "}
-                        <Checkbox
-                          className="ml-2 text-white outline-white border-white accent-white"
-                          color="white"
-                          checked={players.find((x) => x.id == user.id)?.ready}
-                        />
-                      </Room.RoomButton>
-                    )}
-                    <Room.RoomButton onClick={() => leave(name)} action="leave">
-                      Sair
-                    </Room.RoomButton>
-                  </Room.RoomActions>
-                </div>
-              )}
-            </Room.Root>
-          );
-        })}
+                        <div className="flex flex-1 justify-between items-center gap-4">
+                          <Avatar className="w-12 h-12" {...player.avatar} />
+                          <div className="flex items-end gap-3">
+                            <label
+                              htmlFor={`moinho-duplo-${name}-${player.id}`}
+                            >
+                              Moinho duplo
+                            </label>
+                            <Switch
+                              id={`moinho-duplo-${name}-${player.id}`}
+                              color="indigo"
+                              checked={player.moinho}
+                              onCheckedChange={(checked: boolean) => {
+                                toggleMoinho(name, checked);
+                              }}
+                              disabled={player.id != user.id}
+                            />
+                          </div>
+                        </div>
+                        <span>{truncateText(player.name, 25)}</span>
+                      </div>
+                    ))}
+                  </Room.RoomContent>
+
+                  {!joined ? (
+                    !joinedAnyRoom && (
+                      <Room.RoomActions>
+                        <Room.RoomButton
+                          onClick={() => join(name)}
+                          action="join"
+                          disabled={disabled}
+                        >
+                          {players.length === 2
+                            ? "Lotada"
+                            : disabled
+                            ? "Finalizando"
+                            : "Entrar"}
+                        </Room.RoomButton>
+                      </Room.RoomActions>
+                    )
+                  ) : (
+                    <div className="flex-1 flex flex-col justify-center">
+                      <Room.RoomActions>
+                        {players.length < 2 ||
+                          (players.some((x) => !x.ready) && (
+                            <Room.RoomButton
+                              onClick={() => ready(name)}
+                              action="ready"
+                            >
+                              Pronto{" "}
+                              <Checkbox
+                                className="ml-2 text-white outline-white border-white accent-white"
+                                color="white"
+                                checked={
+                                  players.find((x) => x.id == user.id)?.ready
+                                }
+                              />
+                            </Room.RoomButton>
+                          ))}
+                        <Room.RoomButton
+                          onClick={() => leave(name)}
+                          action="leave"
+                        >
+                          Sair
+                        </Room.RoomButton>
+                      </Room.RoomActions>
+                    </div>
+                  )}
+                </Room.Root>
+              );
+            })}
       </main>
     </>
   );

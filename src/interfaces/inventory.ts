@@ -4,6 +4,7 @@ export type SkinType = {
   src: string;
   description: string;
   price: number;
+  selected: boolean;
 };
 
 export type BoardType = {
@@ -15,6 +16,7 @@ export type BoardType = {
   backgroundImageSrc: string;
   description: string;
   price: number;
+  selected: boolean;
 };
 
 export interface Inventory {
